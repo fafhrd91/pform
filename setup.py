@@ -4,7 +4,7 @@ import logging
 import multiprocessing  # atexit exception
 from setuptools import setup, find_packages
 
-version = '0.1.0dev'
+version = '0.1'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4.0a2',
