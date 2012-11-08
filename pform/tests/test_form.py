@@ -8,20 +8,17 @@ from base import BaseTestCase, TestCase
 
 
 class TestFormWidgets(TestCase):
-    def _makeOne(self, fields, form, request):
-        from pform.form import FormWidgets
-        return FormWidgets(fields, form, request)
 
     def test_ctor(self):
-        from pform import Form
+        from pform import Form, FormWidgets, Fieldset
 
         request = DummyRequest()
         form = Form(object(), request)
-        fields = object()
-        inst = self._makeOne(fields, form, request)
-        self.assertEqual(inst.form_fields, fields)
-        self.assertEqual(inst.form, form)
-        self.assertEqual(inst.request, request)
+        fields = Fieldset()
+        widgets = FormWidgets(fields, form, request)
+        self.assertEqual(widgets.form_fields, fields)
+        self.assertEqual(widgets.form, form)
+        self.assertEqual(widgets.request, request)
 
 
 class TestFormErrors(BaseTestCase):
@@ -300,30 +297,3 @@ class TestForm(BaseTestCase):
 
         res = CustomForm(object(), request)()
         self.assertIsInstance(res, HTTPFound)
-
-
-class DummyForm(object):
-    context = None
-    prefix = 'prefix'
-    def form_params(self):
-        return None
-    def form_content(self):
-        return None
-
-
-class DummyFieldset(object):
-    def fieldsets(self):
-        return []
-
-
-class DummyFields(object):
-    def __init__(self, fieldset=None):
-        if fieldset is None:
-            fieldset = DummyFieldset()
-        self.fieldset = fieldset
-
-    def bind(self, data, params, context=None):
-        self.data = data
-        self.params = params
-        self.context = context
-        return self.fieldset

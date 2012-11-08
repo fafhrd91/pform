@@ -1,7 +1,5 @@
 import os
 import sys
-import logging
-import multiprocessing  # atexit exception
 from setuptools import setup, find_packages
 
 version = '0.1'
