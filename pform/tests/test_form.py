@@ -257,7 +257,7 @@ class TestForm(BaseTestCase):
         form_ob.fields = pform.Fieldset(pform.TextField('test'))
         res = form_ob()
 
-        self.assertIn('binary', res.body)
+        self.assertIn('binary', res.text)
 
     def test_form_render_view_config_renderer(self):
         import pform
