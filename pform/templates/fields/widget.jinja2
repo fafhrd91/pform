@@ -2,7 +2,7 @@
 <div class="{{'control-group error' if error else 'control-group'}}">
   <label class="control-label"
          for="{{context.id}}" title="{{context.description}}">
-    {{context.title|safe}} 
+    {{context.title|safe}}
     {% if context.required %}*{% endif %}
   </label>
   <div class="controls">
