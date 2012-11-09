@@ -4,7 +4,7 @@ from webob.multidict import MultiDict
 from pyramid.decorator import reify
 from pyramid.renderers import NullRendererHelper
 from pyramid.interfaces import IResponse
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.config.views import DefaultViewMapper
 from player import render, tmpl_filter, add_message
 
@@ -12,6 +12,7 @@ from pform.field import Field
 from pform.fieldset import Fieldset
 from pform.button import Buttons, Actions
 from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
+from pform.interfaces import HTTPResponseIsReady
 
 
 @tmpl_filter('form:error')
@@ -97,9 +98,19 @@ class FormViewMapper(DefaultViewMapper):
         def _class_view(context, request, _view=form_view):
             inst = _view(context, request)
             request.__original_view__ = inst
-            res = inst.render_update()
+
+            # update form
+            try:
+                result = inst.update()
+                if result is None:
+                    result = {}
+            except HTTPResponseIsReady as exc:
+                result = exc.args[0]
+            except HTTPException as exc:
+                result = exc
+
             request.__view__ = inst
-            return res
+            return result
         return _class_view
 
 
@@ -266,29 +277,32 @@ class Form(object):
         self.update_widgets()
         self.update_actions()
 
-        return self.actions.execute()
+        result = self.actions.execute()
+        if isinstance(result, HTTPException):
+            raise HTTPResponseIsReady(result)
+
+        return result
 
     def render(self):
         """ render form """
         return render(self.request, self.tmpl_view, self)
 
-    def render_update(self):
-        result = self.update()
-        if result is None:
-            result = {}
-
-        return result
-
     def __call__(self):
         """ update form and render form to response """
-        result = self.update()
+        try:
+            result = self.update()
+        except HTTPResponseIsReady as result:
+            return result.args[0]
+        except HTTPException as result:
+            return result
 
         response = self.request.registry.queryAdapterOrSelf(result, IResponse)
         if response is not None:
             return response
 
-        response = self.request.response
         body = self.render()
+
+        response = self.request.response
         if isinstance(body, bytes):
             response.body = body
         else:
