@@ -61,7 +61,7 @@ class TestButton(BaseTestCase):
         widget = btn.bind('test.', params, context, request)
         self.assertEqual(
             widget.render().strip(),
-            '<input type="submit" id="test-test" class="btn btn-primary" name="test.test" >')
+            '<input type="submit" id="test-test" class="btn btn-primary" name="test.test" value="Test" >')
 
     def test_execute(self):
         import pform
