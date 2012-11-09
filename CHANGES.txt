@@ -7,6 +7,8 @@ CHANGES
 
 - Fixed submit button template
 
+- Allow to return http response from form update of action handler
+
 
 0.1 (11-07-2012)
 ================
