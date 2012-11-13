@@ -14,14 +14,6 @@ __all__ = [
     'AC_SUCCESS','AC_INFO','AC_WARNING','parse_date','includeme'
 ]
 
-try:
-    from collections import OrderedDict
-except ImportError: # pragma: no cover
-    import collections
-    from ordereddict import OrderedDict
-    collections.OrderedDict = OrderedDict
-
-
 from pform.interfaces import null
 from pform.interfaces import required
 from pform.interfaces import Invalid

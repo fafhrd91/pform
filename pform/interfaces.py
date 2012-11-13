@@ -1,6 +1,5 @@
 """ Form and Field Interfaces """
 from zope import interface
-from zope.interface.common import mapping
 from translationstring import TranslationStringFactory
 
 MessageFactory = _ = TranslationStringFactory('ptah.form')

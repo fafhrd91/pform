@@ -2,12 +2,14 @@
 CHANGES
 =======
 
-0.2 (11-12-2012)
+0.2 (11-13-2012)
 ================
 
 - Fixed submit button template
 
-- Allow to return http response from form update of action handler
+- Allow to return http response from form update or action handler
+
+- Added support for `player.layout()`
 
 
 0.1 (11-07-2012)

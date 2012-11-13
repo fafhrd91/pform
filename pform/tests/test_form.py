@@ -302,6 +302,98 @@ class TestForm(BaseTestCase):
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
 
+    def test_form_render_view_config_layout(self):
+        import pform, player
+        request = self.make_request()
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+        self.config.add_view(
+            name='test', view=CustomForm, renderer=player.layout())
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIn('<form action="http://example.com"', str(resp))
+
+    def test_form_render_view_config_layout_with_renderer(self):
+        import pform, player
+        request = self.make_request()
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+        self.config.add_view(
+            name='test', view=CustomForm,
+            renderer=player.layout('pform:tests/test-form.pt'))
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIn('Custom form', str(resp))
+        self.assertIn('<form action="http://example.com"', str(resp))
+
+    def test_form_render_layout_return_httpexc(self):
+        import pform, player
+        request = self.make_request(POST={'form.buttons.test': 'test'})
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            @pform.button('test')
+            def handler(self):
+                return HTTPFound(location='.')
+
+        self.config.add_view(
+            name='test', view=CustomForm,
+            renderer=player.layout())
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIsInstance(resp, HTTPFound)
+
+    def test_form_render_layout_raise_httpexc(self):
+        import pform, player
+        request = self.make_request(POST={'form.buttons.test': 'test'})
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            @pform.button('test')
+            def handler(self):
+                raise HTTPFound(location='.')
+
+        self.config.add_view(
+            name='test', view=CustomForm,
+            renderer=player.layout())
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIsInstance(resp, HTTPFound)
+
+    def test_form_render_layout_raise_httpexc_with_template(self):
+        import pform, player
+        request = self.make_request(POST={'form.buttons.test': 'test'})
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            @pform.button('test')
+            def handler(self):
+                raise HTTPFound(location='.')
+
+        self.config.add_view(
+            name='test', view=CustomForm,
+            renderer=player.layout('pform:tests/test-form.pt'))
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIsInstance(resp, HTTPFound)
+
     def test_form_render_view_config_raise_httpexc(self):
         import pform
         request = self.make_request(POST={'form.buttons.test': 'test'})
@@ -361,3 +453,34 @@ class TestForm(BaseTestCase):
 
         res = CustomForm(object(), request)()
         self.assertIs(res, response)
+
+    def test_form_update_to_resp(self):
+        import pform
+        request = self.make_request()
+        response = request.response
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update(self):
+                super(CustomForm, self).update()
+                return response
+
+            @pform.button('test1')
+            def handler1(self):
+                raise HTTPFound(location='.')
+
+            @pform.button('test2')
+            def handler2(self):
+                return HTTPFound(location='.')
+
+        res = CustomForm(object(), request)
+        self.assertIs(res.update_to_resp(), response)
+
+        request = self.make_request(POST={'form.buttons.test1': 'test'})
+        form = CustomForm(object(), request)
+        self.assertIsInstance(form.update_to_resp(), HTTPFound)
+
+        request = self.make_request(POST={'form.buttons.test2': 'test'})
+        form = CustomForm(object(), request)
+        self.assertIsInstance(form.update_to_resp(), HTTPFound)

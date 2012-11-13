@@ -6,7 +6,7 @@ from pyramid.renderers import NullRendererHelper
 from pyramid.interfaces import IResponse
 from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.config.views import DefaultViewMapper
-from player import render, tmpl_filter, add_message
+from player import layout, render, tmpl_filter, add_message
 
 from pform.field import Field
 from pform.fieldset import Fieldset
@@ -91,8 +91,34 @@ class FormViewMapper(DefaultViewMapper):
         super(FormViewMapper, self).__init__(**kw)
 
         renderer = kw.get('renderer')
-        if not (renderer is None or isinstance(renderer, NullRendererHelper)):
+        is_layout = isinstance(renderer, layout)
+
+        if is_layout and not (renderer.name or renderer.renderer):
+            self.map_class_native = self.map_class_native_layout
+
+        elif is_layout and renderer.name:
             self.map_class_native = self.map_class_native_update
+
+        elif not is_layout and not (renderer is None or
+                  isinstance(renderer, NullRendererHelper)):
+            self.map_class_native = self.map_class_native_update
+
+    def map_class_native_layout(self, form_view):
+        def _class_view(context, request, _view=form_view):
+            inst = _view(context, request)
+            request.__original_view__ = inst
+
+            try:
+                result = inst.update()
+                if result is None:
+                    result = {}
+            except HTTPResponseIsReady as result:
+                return result.args[0]
+            except HTTPException as result:
+                return result
+
+            return inst.render()
+        return _class_view
 
     def map_class_native_update(self, form_view):
         def _class_view(context, request, _view=form_view):
@@ -280,6 +306,16 @@ class Form(object):
         result = self.actions.execute()
         if isinstance(result, HTTPException):
             raise HTTPResponseIsReady(result)
+
+        return result
+
+    def update_to_resp(self):
+        try:
+            result = self.update()
+        except HTTPResponseIsReady as result:
+            return result.args[0]
+        except HTTPException as result:
+            return result
 
         return result
 
