@@ -2,6 +2,7 @@
 import pytz
 import datetime
 import decimal
+from pyramid.i18n import get_localizer
 from pyramid.compat import NativeIO, text_type, PY3
 
 from pform import iso8601
@@ -86,16 +87,16 @@ class BaseChoiceField(VocabularyField):
 
     tmpl_display = 'fields:choice-display'
 
+    error_msg = _('"${val}" is not in vocabulary')
+
     def to_form(self, value):
         if value is null:
             return null
 
         try:
             return self.vocabulary.get_term(value).token
-        except Exception:
-            raise Invalid(
-                self, _('"${val}" is not in vocabulary',
-                        mapping={'val': value}))
+        except LookupError:
+            raise Invalid(self.error_msg, self, {'val': value})
 
     def to_field(self, value):
         if not value:
@@ -103,10 +104,8 @@ class BaseChoiceField(VocabularyField):
 
         try:
             return self.vocabulary.get_term_bytoken(value).value
-        except Exception:
-            raise Invalid(
-                self, _('"${val}" is not in vocabulary',
-                        mapping={'val': value}))
+        except LookupError:
+            raise Invalid(self.error_msg, self, {'val': value})
 
     def extract(self, default=null):
         value = self.params.get(self.name, default)
@@ -132,31 +131,33 @@ class BaseMultiChoiceField(VocabularyField):
 
     tmpl_display = 'fields:multichoice-display'
 
+    error_msg = _('"${val}" is not in vocabulary')
+
     def to_form(self, value):
         if value is null:
             return null
+
+        val = value
         try:
             res = []
             for val in value:
                 res.append(self.vocabulary.get_term(val).token)
             return res
-        except (LookupError, TypeError):
-            raise Invalid(
-                self, _('"${val}" is not in vocabulary',
-                        mapping={'val': value}))
+        except:
+            raise Invalid(self.error_msg, self, {'val': val})
 
     def to_field(self, value):
         if not value:
             return null
+
+        val = value
         try:
             res = []
             for val in value:
                 res.append(self.vocabulary.get_term_bytoken(val).value)
             return res
-        except Exception:
-            raise Invalid(
-                self, _('"${val}" is not in vocabulary',
-                        mapping={'val': value}))
+        except:
+            raise Invalid(self.error_msg, self, {'val': val})
 
     def extract(self, default=null):
         if self.name not in self.params:
@@ -194,6 +195,8 @@ class TextField(InputField):
 
 class Number(object):
 
+    error_msg = _('"${val}" is not a number')
+
     def to_form(self, value):
         if value is null:
             return null
@@ -201,10 +204,7 @@ class Number(object):
         try:
             return str(self.typ(value))
         except Exception:
-            raise Invalid(self,
-                          _('"${val}" is not a number',
-                            mapping={'val': value}),
-                          )
+            raise Invalid(self.error_msg, self, {'val': value})
 
     def to_field(self, value):
         if value != 0 and not value:
@@ -213,8 +213,7 @@ class Number(object):
         try:
             return self.typ(value)
         except Exception:
-            raise Invalid(
-                self, _('"${val}" is not a number', mapping={'val': value}))
+            raise Invalid(self.error_msg, self, {'val': value})
 
 
 @field('int')
@@ -293,6 +292,8 @@ class LinesField(TextAreaField):
 
     klass = 'textlines-widget'
 
+    error_msg = _('"${val}" is not a list')
+
     def to_form(self, value):
         if value is null or not value:
             return null
@@ -300,10 +301,7 @@ class LinesField(TextAreaField):
         try:
             return '\n'.join(value)
         except Exception:
-            raise Invalid(self,
-                          _('"${val}" is not a list',
-                            mapping={'val': value}),
-            )
+            raise Invalid(self.error_msg, self, {'val': value})
 
     def to_field(self, value):
         if not value:
@@ -312,10 +310,7 @@ class LinesField(TextAreaField):
         try:
             return [s.strip() for s in value.split()]
         except Exception:
-            raise Invalid(self,
-                          _('"${val}" is not a list',
-                            mapping={'val': value}),
-                          )
+            raise Invalid(self.error_msg, self, {'val': value})
 
 
 @field('password')
@@ -341,6 +336,9 @@ class DateField(TextField):
 
     tmpl_display = 'fields:date-display'
 
+    error_msg = _('"${val}" is not a date object')
+    error_invalid_date = _('Invalid date')
+
     def to_form(self, value):
         if value is null:
             return null
@@ -349,9 +347,7 @@ class DateField(TextField):
             value = value.date()
 
         if not isinstance(value, datetime.date):
-            raise Invalid(self,
-                          _('"${val}" is not a date object',
-                            mapping={'val': value}))
+            raise Invalid(self.error_msg, self, {'val': value})
 
         return value.isoformat()
 
@@ -367,8 +363,7 @@ class DateField(TextField):
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.date(year, month, day)
             except Exception as e:
-                raise Invalid(
-                    self, _('Invalid date', mapping={'val': value, 'err': e}))
+                raise Invalid(self.error_invalid_date, self)
 
         return result
 
@@ -379,6 +374,9 @@ class DateTimeField(TextField):
 
     tmpl_display = 'fields:datetime-display'
 
+    error_msg = _('"${val}" is not a datetime object')
+    error_invalid_date = _('Invalid date')
+
     def to_form(self, value):
         if value is null or value is None or not value:
             return null
@@ -387,9 +385,7 @@ class DateTimeField(TextField):
             value = datetime.datetime.combine(value, datetime.time())
 
         if not isinstance(value, datetime.datetime):
-            raise Invalid(
-                self, _('"${val}" is not a datetime object',
-                        mapping={'val': value}))
+            raise Invalid(self.error_msg, self, {'val': value})
 
         if value.tzinfo is None:
             value = value.replace(tzinfo=self.default_tzinfo)
@@ -408,9 +404,9 @@ class DateTimeField(TextField):
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.datetime(year, month, day,
                                            tzinfo=self.default_tzinfo)
-            except Exception as e:
-                raise Invalid(self, _('Invalid date',
-                                      mapping={'val': value, 'err': e}))
+            except Exception:
+                raise Invalid(self.error_invalid_date, self)
+
         return result
 
 
@@ -440,7 +436,7 @@ class ChoiceField(BaseChoiceField):
     size = 1
     klass = 'select-widget'
     multiple = None
-    promptMessage = _('select a value ...')
+    prompt_message = _('select a value ...')
 
     tmpl_input = 'fields:select'
 
@@ -452,7 +448,7 @@ class ChoiceField(BaseChoiceField):
                     'id': self.id + '-novalue',
                     'name': self.name,
                     'value': self.noValueToken,
-                    'label': self.promptMessage,
+                    'label': self.prompt_message,
                     'checked': self.form_value is null,
                     'description': '',
                     })
@@ -474,6 +470,8 @@ class MultiSelectField(ChoiceField):
 @field('timezone')
 class TimezoneField(ChoiceField):
     """ Timezone field. Field name is ``timezone``."""
+
+    error_msg = _('Invalid timezone "${val}"')
 
     _tzs = dict((str(tz).lower(), str(tz)) for tz in pytz.all_timezones)
     vocabulary = vocabulary.SimpleVocabulary.from_items(
@@ -499,5 +497,4 @@ class TimezoneField(ChoiceField):
             except:
                 return pytz.timezone(self._tzs[v])
         except:
-            raise Invalid(self,
-                _('"${val}" is not a timezone', mapping={'val': value}))
+            raise Invalid(self.error_msg, self, {'val': value})

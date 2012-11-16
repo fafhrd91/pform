@@ -142,9 +142,38 @@ class TestFieldset(BaseTestCase):
         fs = fieldset.bind(request)
         self.assertIs(fs['fs']['test'].value, pform.null)
 
+    def test_fieldset_filter_in_ctor(self):
+        def filter(fs, fields):
+            for field in fields:
+                if field.name == 'test':
+                    yield field
+
+        fieldset = pform.Fieldset(
+            field, field1, filter=filter)
+
+        fs = fieldset.bind(self.request, {}, {})
+        self.assertEqual(tuple(fs.keys()), ('test',))
+
+    def test_fieldset_filter_in_bind(self):
+        def filter(fs, fields):
+            for field in fields:
+                if field.name == 'test':
+                    yield field
+
+        def filter1(fs, fields):
+            for field in fields:
+                if field.name == 'test1':
+                    yield field
+
+        fieldset = pform.Fieldset(
+            field, field1, filter=filter)
+
+        fs = fieldset.bind(self.request, {}, {}, filter=filter1)
+        self.assertEqual(tuple(fs.keys()), ('test1',))
+
     def test_fieldset_validate(self):
         def validator(fs, data):
-            raise pform.Invalid(fs, 'msg')
+            raise pform.Invalid('msg', fs)
 
         fieldset = pform.Fieldset(field, validator=validator)
         self.assertRaises(pform.Invalid, fieldset.validate, {})
@@ -220,11 +249,11 @@ class TestFieldset(BaseTestCase):
 
     def test_fieldset_extract_validate(self):
         def validator(fs, data):
-            raise pform.Invalid(fs, 'msg')
+            raise pform.Invalid('msg', fs)
 
         field = self._makeOne('test')
         fieldset = pform.Fieldset(field, validator=validator)
-        fieldset = fieldset.bind(object, params={'test': 'FORM'})
+        fieldset = fieldset.bind(self.request, params={'test': 'FORM'})
 
         data, errors = fieldset.extract()
         self.assertEqual(len(errors), 1)
@@ -233,8 +262,8 @@ class TestFieldset(BaseTestCase):
 class TestFieldsetErrors(BaseTestCase):
 
     def test_fieldset_errors(self):
-        err1 = pform.Invalid(field, 'error1')
-        err2 = pform.Invalid(field1, 'error2')
+        err1 = pform.Invalid('error1', field.bind(self.request,'','',{}))
+        err2 = pform.Invalid('error2', field1.bind(self.request,'','',{}))
 
         fieldset = object()
 
@@ -244,7 +273,7 @@ class TestFieldsetErrors(BaseTestCase):
         self.assertIs(errors.fieldset, fieldset)
         self.assertEqual(errors.msg, {'test': 'error1', 'test1': 'error2'})
 
-        self.assertEqual(str(err1), "Invalid: <TextField 'test'>: <error1>")
+        self.assertEqual(str(err1), "error1")
         self.assertEqual(repr(err1), "Invalid(<TextField 'test'>: <error1>)")
         self.assertEqual(str(pform.null), '<widget.null>')
 

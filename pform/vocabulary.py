@@ -76,20 +76,20 @@ class SimpleVocabulary(object):
     def __contains__(self, value):
         try:
             return value in self.by_value
-        except TypeError:
+        except:
             # sometimes values are not hashable
             return False
 
     def get_term(self, value):
         try:
             return self.by_value[value]
-        except KeyError:
+        except:
             raise LookupError(value)
 
     def get_term_bytoken(self, token):
         try:
             return self.by_token[token]
-        except KeyError:
+        except:
             raise LookupError(token)
 
     def get_value(self, token):

@@ -81,6 +81,7 @@ from pform.form import FormWidgets
 
 # button
 from pform.button import button
+from pform.button import button2
 from pform.button import Button
 from pform.button import Buttons
 from pform.button import AC_DEFAULT

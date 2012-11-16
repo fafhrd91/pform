@@ -444,9 +444,9 @@ class TestMultiChoiceField(BaseTestCase):
         field.update()
 
 
-class TestDateTime(TestCase):
+class TestDateTime(BaseTestCase):
     def _makeOne(self, name='test', *arg, **kw):
-        return pform.DateTimeField(name, *arg, **kw)
+        return pform.DateTimeField(name, request=self.request, *arg, **kw)
 
     def _dt(self):
         import datetime
@@ -473,8 +473,7 @@ class TestDateTime(TestCase):
     def test_to_form_with_garbage(self):
         typ = self._makeOne()
         e = invalid_exc(typ.to_form, 'garbage')
-        self.assertEqual(e.msg.interpolate(),
-                         '"garbage" is not a datetime object')
+        self.assertEqual(str(e), '"garbage" is not a datetime object')
 
     def test_to_form_with_date(self):
         import datetime
@@ -559,9 +558,10 @@ class TestDateTime(TestCase):
         self.assertEqual(result.isoformat(), dt.isoformat())
 
 
-class TestDate(TestCase):
+class TestDate(BaseTestCase):
+
     def _makeOne(self, name='test', *arg, **kw):
-        return pform.DateField(name, *arg, **kw)
+        return pform.DateField(name, request=self.request, *arg, **kw)
 
     def _dt(self):
         import datetime
@@ -580,7 +580,7 @@ class TestDate(TestCase):
     def test_to_form_with_garbage(self):
         typ = self._makeOne()
         e = invalid_exc(typ.to_form, 'garbage')
-        self.assertEqual(e.msg.interpolate(), '"garbage" is not a date object')
+        self.assertEqual(str(e), '"garbage" is not a date object')
 
     def test_to_form_with_date(self):
         typ = self._makeOne()

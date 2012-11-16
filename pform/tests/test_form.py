@@ -20,6 +20,25 @@ class TestFormWidgets(TestCase):
         self.assertEqual(widgets.form, form)
         self.assertEqual(widgets.request, request)
 
+    def test_extract_convert_strings(self):
+        from pform import Invalid, Form, FormWidgets, Fieldset
+
+        class MyForm(Form):
+            def validate(self, data, errors):
+                errors.extend((Invalid('error1'), 'error2'))
+
+        request = DummyRequest()
+        form = MyForm(object(), request)
+        widgets = FormWidgets(form.fields, form, request)
+        widgets.fieldset = form.fields
+
+        data, errors = widgets.extract()
+        self.assertEqual(len(errors), 2)
+        self.assertIsInstance(errors[0], Invalid)
+        self.assertIsInstance(errors[1], Invalid)
+        self.assertEqual(errors[0].msg, 'error1')
+        self.assertEqual(errors[1].msg, 'error2')
+
 
 class TestFormErrors(BaseTestCase):
 
@@ -28,8 +47,8 @@ class TestFormErrors(BaseTestCase):
         from pform.form import form_error_message
         request = self.make_request()
 
-        err1 = Invalid(None, 'Error1')
-        err2 = Invalid(None, 'Error2')
+        err1 = Invalid('Error1')
+        err2 = Invalid('Error2')
         err2.field = TextField('text')
 
         msg = [err1, err2]
@@ -50,7 +69,7 @@ class TestFormErrors(BaseTestCase):
 
         form = pform.Form(object(), request)
 
-        err = pform.Invalid(None, 'Error')
+        err = pform.Invalid('Error')
         form.add_error_message([err])
 
         res = request.render_messages()
@@ -213,6 +232,25 @@ class TestForm(BaseTestCase):
         self.assertIsInstance(form_ob.widgets['test'], pform.TextField)
         self.assertEqual(form_ob.widgets['test'].name, 'test')
         self.assertEqual(form_ob.widgets['test'].id, 'form-widgets-test')
+
+    def test_form_fields_filter(self):
+        import pform
+
+        class MyForm(pform.Form):
+
+            fields = pform.Fieldset(
+                pform.TextField(name = 'test'),
+                pform.TextField(name = 'test1'))
+
+            def filter(self, fs, fields):
+                for field in fields:
+                    if field.name == 'test':
+                        yield field
+
+        form_ob = MyForm(None, self.request)
+        form_ob.update()
+
+        self.assertEqual(tuple(form_ob.widgets.keys()), ('test',))
 
     def test_form_extract(self):
         import pform

@@ -1,4 +1,4 @@
-from base import TestCase
+from base import TestCase, BaseTestCase
 
 
 def invalid_exc(func, *arg, **kw):
@@ -15,10 +15,10 @@ class DummyValidator(object):
     def __init__(self, msg=None):
         self.msg = msg
 
-    def __call__(self, node, value):
+    def __call__(self, field, value):
         from pform import Invalid
         if self.msg:
-            raise Invalid(node, self.msg)
+            raise Invalid(self.msg, field)
 
 
 class TestAll(TestCase):
@@ -191,7 +191,7 @@ class TestLength(TestCase):
         e = invalid_exc(validator, None, 'ab')
         self.assertEqual(e.msg.interpolate(), 'Longer than maximum length 1')
 
-class TestOneOf(TestCase):
+class TestOneOf(BaseTestCase):
     def _makeOne(self, values):
         from pform import OneOf
         return OneOf(values)
@@ -203,4 +203,4 @@ class TestOneOf(TestCase):
     def test_failure(self):
         validator = self._makeOne([1, 2])
         e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
+        self.assertEqual(str(e), '"None" is not one of 1, 2')

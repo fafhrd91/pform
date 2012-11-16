@@ -1,8 +1,10 @@
 """ Form and Field Interfaces """
 from zope import interface
+from pyramid.i18n import get_localizer
+from pyramid.threadlocal import get_current_request
 from translationstring import TranslationStringFactory
 
-MessageFactory = _ = TranslationStringFactory('ptah.form')
+MessageFactory = _ = TranslationStringFactory('pform')
 
 FORM_INPUT = 'form-input'
 FORM_DISPLAY = 'form-display'
@@ -10,14 +12,22 @@ FORM_DISPLAY = 'form-display'
 
 class Invalid(Exception):
     """An exception raised by data types and validators indicating that
-    the value for a particular node was not valid."""
+    the value for a particular field was not valid."""
 
-    def __init__(self, field, msg):
-        self.field = field
+    def __init__(self, msg, field=None, mapping=None):
         self.msg = msg
+        self.field = field
+        self.mapping = mapping
 
     def __str__(self):
-        return 'Invalid: %s: <%s>' % (self.field, self.msg)
+        request = getattr(self.field, 'request', None)
+        if request is None:
+            request = get_current_request()
+
+        if request is None:
+            return self.msg
+
+        return get_localizer(request).translate(self.msg, mapping=self.mapping)
 
     def __repr__(self):
         return 'Invalid(%s: <%s>)' % (self.field, self.msg)
@@ -127,4 +137,15 @@ def VocabularyFactory(context):
 
     :param context: Field context
     :rtype: Vocabulary instance
+    """
+
+
+def FieldsetFilter(fieldset, items):
+    """
+    A ``filter`` is called by fieldset during binding. It should
+    return sequence of field.
+
+    :param fieldset: Cloned fieldset with all attributes set except fields
+    :param fields: Result of ``Fieldset.values`` method
+    :rtype: Sequence of fields
     """

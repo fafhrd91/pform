@@ -17,10 +17,10 @@ class All(object):
             try:
                 validator(field, value)
             except Invalid as e:
-                msgs.append(e.msg)
+                msgs.append(str(e))
 
         if msgs:
-            raise Invalid(field, msgs)
+            raise Invalid(msgs, field)
 
 
 class Function(object):
@@ -58,10 +58,10 @@ class Function(object):
         result = self.function(value)
 
         if not result:
-            raise Invalid(field, self.message)
+            raise Invalid(self.message, field)
 
         if isinstance(result, string_types):
-            raise Invalid(field, result)
+            raise Invalid(result, field)
 
 
 class Regex(object):
@@ -93,7 +93,7 @@ class Regex(object):
 
     def __call__(self, field, value):
         if self.match_object.match(value) is None:
-            raise Invalid(field, self.msg)
+            raise Invalid(self.msg, field)
 
 
 class Email(Regex):
@@ -151,13 +151,13 @@ class Range(object):
             if value < self.min:
                 min_err = _(self.min_err,
                             mapping={'val': value, 'min': self.min})
-                raise Invalid(field, min_err)
+                raise Invalid(min_err, field)
 
         if self.max is not None:
             if value > self.max:
                 max_err = _(self.max_err,
                             mapping={'val': value, 'max': self.max})
-                raise Invalid(field, max_err)
+                raise Invalid(max_err, field)
 
 
 class Length(object):
@@ -174,13 +174,13 @@ class Length(object):
             if len(value) < self.min:
                 min_err = _('Shorter than minimum length ${min}',
                             mapping={'min': self.min})
-                raise Invalid(field, min_err)
+                raise Invalid(min_err, field)
 
         if self.max is not None:
             if len(value) > self.max:
                 max_err = _('Longer than maximum length ${max}',
                             mapping={'max': self.max})
-                raise Invalid(field, max_err)
+                raise Invalid(max_err, field)
 
 
 class OneOf(object):
@@ -193,6 +193,5 @@ class OneOf(object):
     def __call__(self, field, value):
         if not value in self.choices:
             choices = ', '.join(['%s' % x for x in self.choices])
-            err = _('"${val}" is not one of ${choices}',
-                    mapping={'val': value, 'choices': choices})
-            raise Invalid(field, err)
+            err = _('"${val}" is not one of ${choices}')
+            raise Invalid(err, field, {'val': value, 'choices': choices})

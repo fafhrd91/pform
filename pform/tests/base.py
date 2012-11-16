@@ -47,3 +47,4 @@ class BaseTestCase(TestCase):
 
         self.registry = self.config.registry
         self.request = self.make_request()
+        self.config.begin(request=self.request)

@@ -74,7 +74,7 @@ class TestField(BaseTestCase):
         self.assertRaises(pform.Invalid, field.validate, pform.required)
 
         def validator(field, value):
-            raise pform.Invalid(field, 'msg')
+            raise pform.Invalid('msg', field)
 
         field = pform.Field('test', validator=validator)
         self.assertRaises(pform.Invalid, field.validate, '')
@@ -170,7 +170,7 @@ class TestField(BaseTestCase):
     def test_field_update_with_error(self):
         class MyField(pform.Field):
             def to_form(self, value):
-                raise pform.Invalid(self, 'Invalid value')
+                raise pform.Invalid('Invalid value', self)
 
         request = object()
 

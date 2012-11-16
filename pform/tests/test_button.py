@@ -6,7 +6,7 @@ class TestButton(BaseTestCase):
     def test_ctor(self):
         import pform
 
-        btn = pform.Button(name='test', actionName='action',
+        btn = pform.Button(name='test', action_name='action',
                           actype = pform.AC_PRIMARY)
 
         self.assertEqual(btn.name, 'test')
@@ -17,7 +17,7 @@ class TestButton(BaseTestCase):
     def test_bind(self):
         import pform
 
-        btn = pform.Button(name='test', actionName='action',
+        btn = pform.Button(name='test', action_name='action',
                           actype = pform.AC_PRIMARY)
         params = {}
         context = object()
@@ -36,7 +36,7 @@ class TestButton(BaseTestCase):
     def test_activated(self):
         import pform
 
-        btn = pform.Button(name='test', actionName='action',
+        btn = pform.Button(name='test', action_name='action',
                           actype = pform.AC_PRIMARY)
         params = {'button.unkown': 'true'}
         context = object()
@@ -52,7 +52,7 @@ class TestButton(BaseTestCase):
     def test_render(self):
         import pform
 
-        btn = pform.Button(name='test', actionName='action',
+        btn = pform.Button(name='test', action_name='action',
                           actype = pform.AC_PRIMARY)
         params = {}
         context = object()
@@ -66,7 +66,7 @@ class TestButton(BaseTestCase):
     def test_execute(self):
         import pform
 
-        btn = pform.Button(name='test', actionName='action')
+        btn = pform.Button(name='test', action_name='action')
 
         class Test(object):
             def action(self):
@@ -82,14 +82,43 @@ class TestButton(BaseTestCase):
         btn = pform.Button(name='test')
         self.assertRaises(TypeError, btn, Test())
 
+    def test_execute_with_extract(self):
+        import pform
+        btn = pform.Button(name='test', action_name='action', extract=True)
+
+        class Test(object):
+            def extract(self):
+                return {'k1': 'value'}, ()
+
+            def action(self, data):
+                return data
+
+        self.assertEqual(btn(Test()), {'k1': 'value'})
+
+    def test_execute_with_extract_with_errors(self):
+        import pform
+        btn = pform.Button(name='test', action_name='action', extract=True)
+
+        class Test(object):
+            def add_error_message(self, msg):
+                self.msg = msg
+
+            def extract(self):
+                return {'k1': 'value'}, ('error1','error2')
+
+        f = Test()
+
+        self.assertIsNone(btn(f))
+        self.assertEqual(f.msg, ('error1','error2'))
+
 
 class TestButtons(TestCase):
 
     def test_ctor(self):
         import pform
 
-        btn1 = pform.Button(name='test1', actionName='action')
-        btn2 = pform.Button(name='test2', actionName='action')
+        btn1 = pform.Button(name='test1', action_name='action')
+        btn2 = pform.Button(name='test2', action_name='action')
 
         btns = pform.Buttons()
         self.assertFalse(bool(btns))
@@ -108,8 +137,8 @@ class TestButtons(TestCase):
     def test_add(self):
         import pform
 
-        btn1 = pform.Button(name='test1', actionName='action')
-        btn2 = pform.Button(name='test2', actionName='action')
+        btn1 = pform.Button(name='test1', action_name='action')
+        btn2 = pform.Button(name='test2', action_name='action')
 
         btns = pform.Buttons(btn1)
 
@@ -120,8 +149,8 @@ class TestButtons(TestCase):
     def test_add_duplicate(self):
         import pform
 
-        btn1 = pform.Button(name='test1', actionName='action')
-        btn2 = pform.Button(name='test1', actionName='action')
+        btn1 = pform.Button(name='test1', action_name='action')
+        btn2 = pform.Button(name='test1', action_name='action')
 
         btns = pform.Buttons(btn1)
 
@@ -141,8 +170,8 @@ class TestButtons(TestCase):
     def test_iadd(self):
         import pform
 
-        btn1 = pform.Button(name='test1', actionName='action')
-        btn2 = pform.Button(name='test2', actionName='action')
+        btn1 = pform.Button(name='test1', action_name='action')
+        btn2 = pform.Button(name='test2', action_name='action')
 
         btns1 = pform.Buttons(btn1)
         btns2 = pform.Buttons(btn2)
@@ -166,7 +195,23 @@ class TestButtonDecorator(TestCase):
 
         btn = list(MyForm.buttons.values())[0]
         self.assertEqual(btn.title, 'Test button')
-        self.assertEqual(btn.actionName, 'handler')
+        self.assertEqual(btn.action_name, 'handler')
+        self.assertFalse(btn.extract)
+
+    def test_decorator_buton2(self):
+        import pform
+
+        class MyForm(object):
+            @pform.button2('Test button')
+            def handler(self):
+                """ """
+
+        self.assertEqual(len(MyForm.buttons), 1)
+
+        btn = list(MyForm.buttons.values())[0]
+        self.assertEqual(btn.title, 'Test button')
+        self.assertEqual(btn.action_name, 'handler')
+        self.assertTrue(btn.extract)
 
     def test_decorator_multiple(self):
         import pform
@@ -183,8 +228,8 @@ class TestButtonDecorator(TestCase):
 
         btn1 = list(MyForm.buttons.values())[0]
         btn2 = list(MyForm.buttons.values())[1]
-        self.assertEqual(btn1.actionName, 'handler1')
-        self.assertEqual(btn2.actionName, 'handler2')
+        self.assertEqual(btn1.action_name, 'handler1')
+        self.assertEqual(btn2.action_name, 'handler2')
 
     def test_create_id(self):
         import binascii

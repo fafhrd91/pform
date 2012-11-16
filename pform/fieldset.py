@@ -1,5 +1,6 @@
 """ Form Fieldset implementation """
 from collections import OrderedDict
+from pyramid.compat import text_type
 
 from pform.field import Field
 from pform.validator import All
@@ -17,6 +18,7 @@ class Fieldset(OrderedDict):
         self.description = kwargs.pop('description', '')
         self.prefix = '%s.' % self.name if self.name else ''
         self.lprefix = len(self.prefix)
+        self.filter = kwargs.pop('filter', None)
 
         validator = kwargs.pop('validator', None)
         if isinstance(validator, (tuple, list)):
@@ -70,7 +72,7 @@ class Fieldset(OrderedDict):
     def validate(self, data):
         self.validator(self, data)
 
-    def bind(self, request, data=None, params={}, context=None):
+    def bind(self, request, data=None, params={}, context=None, filter=None):
         clone = Fieldset(
             name=self.name,
             title=self.title,
@@ -80,17 +82,26 @@ class Fieldset(OrderedDict):
         if data is None:
             data = {}
 
-        for name, field in self.items():
-            if isinstance(field, Fieldset):
-                clone[name] = field.bind(
-                    request, data.get(name, None), params, context)
-            else:
-                clone[name] = field.bind(
-                    request, self.prefix, data.get(name, null), params, context)
-
         clone.request = request
         clone.params = params
         clone.data = data
+
+        values = self.values()
+
+        if filter is None:
+            filter = self.filter
+        if filter is not None:
+            values = filter(clone, values)
+
+        for field in values:
+            if isinstance(field, Fieldset):
+                clone[field.name] = field.bind(
+                    request, data.get(field.name, None), params, context)
+            else:
+                clone[field.name] = field.bind(
+                    request, self.prefix,
+                    data.get(field.name, null), params, context)
+
         return clone
 
     def extract(self):
@@ -100,6 +111,7 @@ class Fieldset(OrderedDict):
         for fieldset in self.fieldsets():
             if fieldset is self:
                 continue
+
             fdata, ferrors = fieldset.extract()
             data[fieldset.name] = fdata
             errors.extend(ferrors)
@@ -151,6 +163,6 @@ class FieldsetErrors(list):
     def msg(self):
         r = {}
         for err in self:
-            r[err.field.name] = err.msg
+            r[err.field.name] = text_type(err)
 
         return r

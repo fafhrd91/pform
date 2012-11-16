@@ -34,8 +34,8 @@ class Button(object):
 
     template = 'form:submit'
 
-    def __init__(self, name='submit', title=None, action=None, actionName=None,
-                 actype=AC_DEFAULT, condition=None, **kw):
+    def __init__(self, name='submit', title=None, action=None, action_name=None,
+                 actype=AC_DEFAULT, condition=None, extract=False, **kw):
         self.__dict__.update(kw)
 
         if title is None:
@@ -48,19 +48,30 @@ class Button(object):
         self.name = name
         self.title = title
         self.action = action
-        self.actionName = actionName
+        self.action_name = action_name
         self.actype = actype
         self.condition = condition
+        self.extract = extract
 
     def __repr__(self):
         return '<{0} "{1}" : "{2}">'.format(
             self.__class__.__name__, self.name, self.title)
 
     def __call__(self, context):
-        if self.actionName is not None:
-            return getattr(context, self.actionName)()
+        args = []
+
+        if self.extract:
+            data, errors = context.extract()
+            if errors:
+                context.add_error_message(errors)
+                return
+
+            args.append(data)
+
+        if self.action_name is not None:
+            return getattr(context, self.action_name)(*args)
         elif self.action is not None:
-            return self.action(context)
+            return self.action(context, *args)
         else:
             raise TypeError("Action is not specified")
 
@@ -172,6 +183,23 @@ def create_btn_id(name):
     return binascii.hexlify(name.encode('utf-8'))
 
 
+def _button(f_locals, title, kwargs):
+    # install buttons manager
+    buttons = f_locals.get('buttons')
+    if buttons is None:
+        buttons = Buttons()
+        f_locals['buttons'] = buttons
+
+    # create button
+    btn = buttons.add_action(title, **kwargs)
+
+    def createHandler(func):
+        btn.action_name = func.__name__
+        return func
+
+    return createHandler
+
+
 def button(title, **kwargs):
     """ Register new form button.
 
@@ -188,18 +216,24 @@ def button(title, **kwargs):
           def handle_cancel(self):
               ...
     """
-    # install buttons manager
-    f_locals = sys._getframe(1).f_locals
+    return _button(sys._getframe(1).f_locals, title, kwargs)
 
-    buttons = f_locals.get('buttons')
-    if buttons is None:
-        buttons = Buttons()
-        f_locals['buttons'] = buttons
 
-    btn = buttons.add_action(title, **kwargs)
+def button2(title, **kwargs):
+    """ Register new form button.
 
-    def createHandler(func):
-        btn.actionName = func.__name__
-        return func
+    :param title: Button title. it is beeing used for html form generations.
+    :param kwargs: Keyword arguments
 
-    return createHandler
+    .. code-block:: python
+
+      class CustomForm(form.Form):
+
+          field = form.Fieldset()
+
+          @form.button2('Cancel')
+          def handle_cancel(self, data):
+              ...
+    """
+    kwargs['extract'] = True
+    return _button(sys._getframe(1).f_locals, title, kwargs)

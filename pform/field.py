@@ -28,6 +28,10 @@ class Field(object):
 
     ``missing``: Field value if value is not specified in bound value.
 
+    ``error``:: Instance os ``pform.interfaces.Invalid`` class or None.
+
+    ``error_msg``:: Custom error message.
+
     ``tmpl_widget``: The path to widget template.
 
     ``tmpl_input``: The path to input widget template. It should be
@@ -45,6 +49,9 @@ class Field(object):
     description = ''
     required = False
     error = None
+    error_msg = ''
+    error_required = _('Required')
+    error_wrong_type = _('Wrong type')
 
     request = None
     params = {}
@@ -131,10 +138,10 @@ class Field(object):
     def validate(self, value):
         """ validate value """
         if self.typ is not None and not isinstance(value, self.typ):
-            raise Invalid(self, _('Wrong type'))
+            raise Invalid(self.error_wrong_type, self)
 
         if value is required:
-            raise Invalid(self, _('Required'))
+            raise Invalid(self.error_required, self)
 
         if self.validator is not None:
             self.validator(self, value)

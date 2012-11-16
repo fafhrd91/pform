@@ -1,6 +1,7 @@
 """Form implementation"""
 from collections import OrderedDict
 from webob.multidict import MultiDict
+from pyramid.compat import string_types
 from pyramid.decorator import reify
 from pyramid.renderers import NullRendererHelper
 from pyramid.interfaces import IResponse
@@ -47,10 +48,14 @@ class FormWidgets(OrderedDict):
         params = form.form_params()
         content = form.form_content()
         prefix = '%s%s' % (form.prefix, self.prefix)
+        fieldsets = self.fieldsets = []
 
-        self.fieldset = self.form_fields.bind(
-            self.request, content, params, form.context)
-        self.fieldsets = fieldsets = []
+        args = [self.request, content, params, form.context]
+
+        if form.filter is not None:
+            args.append(form.filter)
+
+        self.fieldset = self.form_fields.bind(*args)
 
         # Walk through each field, making a widget out of it.
         for fieldset in self.fieldset.fieldsets():
@@ -59,8 +64,10 @@ class FormWidgets(OrderedDict):
             for widget in fieldset.fields():
                 if widget.mode is None:
                     widget.mode = self.mode
+                if widget.tmpl_widget is None:
+                    widget.tmpl_widget = form.tmpl_widget
+
                 widget.id = ('%s%s' % (prefix, widget.name)).replace('.', '-')
-                widget.tmpl_widget = form.tmpl_widget
                 widget.update()
                 widgets.append(widget)
                 self[widget.name] = widget
@@ -76,6 +83,10 @@ class FormWidgets(OrderedDict):
 
         # additional form validation
         self.form.validate(data, errors)
+
+        # convert strings
+        errors = [Invalid(err) if isinstance(err, string_types) else err
+                  for err in errors]
 
         # set errors to fields
         for err in errors:
@@ -153,11 +164,13 @@ class Form(object):
 
     ``prefix``: Form prefix, it used for html elements `id` generations.
 
-    ``fields``: Form fields :py:class:`ptah.form.Fieldset`
+    ``fields``: Form fields :py:class:`pform.Fieldset`
 
-    ``buttons``: Form buttons :py:class:`ptah.form.Buttons`
+    ``filter``: Form fields filter :py:class:`pform.interface.FieldsFilter`
 
-    ``actions``: Instance of :py:class:`ptah.form.Actions` class
+    ``buttons``: Form buttons :py:class:`pform.Buttons`
+
+    ``actions``: Instance of :py:class:`pform.Actions` class
 
     ``widgets``: Instance of :py:class:`FormWidgets` class
 
@@ -166,8 +179,8 @@ class Form(object):
 
     ``params``: None
 
-    ``mode``: Form mode. It can be :py:data:`ptah.form.FORM_INPUT` or
-        :py:data:`ptah.form.FORM_DISPLAY`
+    ``mode``: Form mode. It can be :py:data:`pform.FORM_INPUT` or
+        :py:data:`pform.FORM_DISPLAY`
 
     ``action``: Form action, by default ``request.url``
 
@@ -193,6 +206,7 @@ class Form(object):
     buttons = None
 
     fields = Fieldset()
+    filter = None
 
     content = None
 

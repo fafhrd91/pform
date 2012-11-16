@@ -19,7 +19,7 @@
   </fieldset>
   {%endfor%}
 
-  {{request.render_tmpl(view.tmpl_actions, view)|safe}}
+  {{request.render_tmpl(context.tmpl_actions, context)|safe}}
 
   {%if context.csrf%}
   <input type="hidden" name="{{context.csrfname}}" value="{{context.token}}" />
