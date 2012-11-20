@@ -125,7 +125,7 @@ class TestForm(BaseTestCase):
         request = DummyRequest()
         form_ob = MyForm(None, request)
 
-        token = form_ob.token
+        token = form_ob.csrf_token
         self.assertEqual(token, request.session.get_csrf_token())
         self.assertIsNotNone(token)
         self.assertIsNone(form_ob.validate_csrf_token())
@@ -136,7 +136,7 @@ class TestForm(BaseTestCase):
         self.assertRaises(HTTPForbidden, form_ob.validate_csrf_token)
         self.assertRaises(HTTPForbidden, form_ob.validate_form, {}, [])
 
-        request.POST = {form_ob.csrfname: token}
+        request.POST = {form_ob.csrf_name: token}
         self.assertIsNone(form_ob.validate_csrf_token())
 
     def test_form_params_post(self):

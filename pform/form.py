@@ -182,9 +182,9 @@ class Form(object):
 
     ``csrf``: Enable/disable form csrf protection
 
-    ``csrfname``: Form csrf field name
+    ``csrf_name``: Form csrf field name
 
-    ``token``: csrf token
+    ``csrf_token``: Form csrf token value
     """
 
     label = None
@@ -204,13 +204,14 @@ class Form(object):
     method = 'post'
     enctype = 'multipart/form-data'
     accept = None
-    acceptCharset = None
+    accept_charset = None
     params = None
     context = None
     klass = 'form-horizontal'
 
     csrf = False
-    csrfname = 'csrf-token'
+    csrf_name = 'csrf-token'
+    csrf_token = ''
 
     tmpl_view = 'form:view'
     tmpl_actions = 'form:actions'
@@ -241,7 +242,7 @@ class Form(object):
         return self.request.url
 
     @reify
-    def token(self):
+    def csrf_token(self):
         return self.request.session.get_csrf_token()
 
     def form_content(self):
@@ -297,17 +298,17 @@ class Form(object):
         """ Update form """
         return {}
 
-    def validate(self, data, errors):
-        """ Validate form data """
-
     def render(self):
         """ render form """
         return render(self.request, self.tmpl_view, self,
                       actions = self.actions,
                       widgets = self.widgets)
 
+    def validate(self, data, errors):
+        """ Custom form validation """
+
     def validate_form(self, data, errors):
-        """ additional form validation """
+        """ Form validation """
         self.validate_csrf_token()
         try:
             self.validate(data, errors)
@@ -317,9 +318,9 @@ class Form(object):
     def validate_csrf_token(self):
         """ csrf token validation """
         if self.csrf:
-            token = self.form_params().get(self.csrfname, None)
+            token = self.form_params().get(self.csrf_name, None)
             if token is not None:
-                if self.token == token:
+                if self.csrf_token == token:
                     return
 
             raise HTTPForbidden("Form authenticator is not found.")
