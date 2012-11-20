@@ -6,6 +6,7 @@ version = '0.3'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4a2',
+                    'pyramid_amdjs',
                     'pyramid_jinja2',
                     'player >= 0.4',
                     'pytz',

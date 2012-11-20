@@ -87,7 +87,7 @@ To get form values use `extract` method, this method return
            if errors:
                self.add_error_message(errors)
 
-           # same data
+           # save data
            ...
 
 
@@ -97,7 +97,7 @@ Examples
 There are several example.  You can find them in the `examples` 
 directory at github.
 
-https://github.com/fafhrd91/pform/examples
+https://github.com/fafhrd91/pform/tree/master/examples
 
 
 Requirements
