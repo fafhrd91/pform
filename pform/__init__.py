@@ -11,9 +11,12 @@ __all__ = [
     'MultiChoiceField','MultiSelectField','TimezoneField','VocabularyField',
     'BaseChoiceField','BaseMultiChoiceField','Form','DisplayForm','FormWidgets',
     'button','button2','Button','Buttons','AC_DEFAULT','AC_PRIMARY','AC_DANGER',
-    'AC_SUCCESS','AC_INFO','AC_WARNING','parse_date','includeme'
+    'AC_SUCCESS','AC_INFO','AC_WARNING','parse_date','includeme', 'reify',
 ]
 
+from pyramid.decorator import reify
+
+# validation
 from pform.interfaces import null
 from pform.interfaces import required
 from pform.interfaces import Invalid
