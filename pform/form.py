@@ -50,12 +50,8 @@ class FormWidgets(OrderedDict):
         prefix = '%s%s' % (form.prefix, self.prefix)
         fieldsets = self.fieldsets = []
 
-        args = [self.request, content, params, form.context]
-
-        if form.filter is not None:
-            args.append(form.filter)
-
-        self.fieldset = self.form_fields.bind(*args)
+        self.fieldset = self.form_fields.bind(
+            self.request, content, params, form.context)
 
         # Walk through each field, making a widget out of it.
         for fieldset in self.fieldset.fieldsets():
@@ -82,7 +78,7 @@ class FormWidgets(OrderedDict):
         data, errors = self.fieldset.extract()
 
         # additional form validation
-        self.form.validate(data, errors)
+        self.form.validate_form(data, errors)
 
         # convert strings
         errors = [Invalid(err) if isinstance(err, string_types) else err
@@ -120,7 +116,7 @@ class FormViewMapper(DefaultViewMapper):
             request.__original_view__ = inst
 
             try:
-                result = inst.update()
+                result = inst.update_form()
                 if result is None:
                     result = {}
             except HTTPResponseIsReady as result:
@@ -138,7 +134,7 @@ class FormViewMapper(DefaultViewMapper):
 
             # update form
             try:
-                result = inst.update()
+                result = inst.update_form()
                 if result is None:
                     result = {}
             except HTTPResponseIsReady as exc:
@@ -166,8 +162,6 @@ class Form(object):
 
     ``fields``: Form fields :py:class:`pform.Fieldset`
 
-    ``filter``: Form fields filter :py:class:`pform.interface.FieldsFilter`
-
     ``buttons``: Form buttons :py:class:`pform.Buttons`
 
     ``actions``: Instance of :py:class:`pform.Actions` class
@@ -177,7 +171,7 @@ class Form(object):
     ``content``: Form content, it should be `None` or dictionary with
     data for fields.
 
-    ``params``: None
+    ``params``: Form request parameters
 
     ``mode``: Form mode. It can be :py:data:`pform.FORM_INPUT` or
         :py:data:`pform.FORM_DISPLAY`
@@ -188,25 +182,20 @@ class Form(object):
 
     ``csrf``: Enable/disable form csrf protection
 
-    ``token``: csrf token
+    ``csrfname``: Form csrf field name
 
-    ``csrf-name``: csrf field name
+    ``token``: csrf token
     """
 
     label = None
-
     description = ''
-
     prefix = 'form.'
 
     actions = None
-
     widgets = None
 
     buttons = None
-
     fields = Fieldset()
-    filter = None
 
     content = None
 
@@ -229,7 +218,6 @@ class Form(object):
 
     __name__ = ''
     __parent__ = None
-
     __view_mapper__ = FormViewMapper
 
     def __init__(self, context, request):
@@ -241,16 +229,20 @@ class Form(object):
             self.buttons = Buttons()
 
     @reify
-    def action(self):
-        return self.request.url
+    def id(self):
+        return self.name.replace('.', '-')
 
     @reify
     def name(self):
         return self.prefix.strip('.')
 
     @reify
-    def id(self):
-        return self.name.replace('.', '-')
+    def action(self):
+        return self.request.url
+
+    @reify
+    def token(self):
+        return self.request.session.get_csrf_token()
 
     def form_content(self):
         """ Return form content.
@@ -258,7 +250,7 @@ class Form(object):
         return self.content
 
     def form_params(self):
-        """ get request params """
+        """ get form request params """
         if self.params is not None:
             if not isinstance(self.params, MultiDict):
                 return MultiDict(self.params)
@@ -270,10 +262,6 @@ class Form(object):
             return self.request.GET
         else:
             return self.params
-
-    def add_error_message(self, msg):
-        """ add form error message """
-        add_message(self.request, msg, 'form:error')
 
     def update_widgets(self):
         """ prepare form widgets """
@@ -287,13 +275,44 @@ class Form(object):
         self.actions = Actions(self, self.request)
         self.actions.update()
 
-    @property
-    def token(self):
-        return self.request.session.get_csrf_token()
+    def update_form(self, data=None):
+        """ update form """
+        if not self.content and data:
+            self.content = data
+
+        self.update_widgets()
+        self.update_actions()
+
+        result = self.actions.execute()
+        if IResponse.providedBy(result):
+            raise HTTPResponseIsReady(result)
+
+        result = self.update()
+        if IResponse.providedBy(result):
+            raise HTTPResponseIsReady(result)
+
+        return result
+
+    def update(self):
+        """ Update form """
+        return {}
 
     def validate(self, data, errors):
+        """ Validate form data """
+
+    def render(self):
+        """ render form """
+        return render(self.request, self.tmpl_view, self,
+                      actions = self.actions,
+                      widgets = self.widgets)
+
+    def validate_form(self, data, errors):
         """ additional form validation """
         self.validate_csrf_token()
+        try:
+            self.validate(data, errors)
+        except Invalid as err:
+            errors.append(err)
 
     def validate_csrf_token(self):
         """ csrf token validation """
@@ -309,38 +328,14 @@ class Form(object):
         """ extract form values """
         return self.widgets.extract()
 
-    def update(self, **data):
-        """ update form """
-        if not self.content and data:
-            self.content = data
-
-        self.update_widgets()
-        self.update_actions()
-
-        result = self.actions.execute()
-        if isinstance(result, HTTPException):
-            raise HTTPResponseIsReady(result)
-
-        return result
-
-    def update_to_resp(self):
-        try:
-            result = self.update()
-        except HTTPResponseIsReady as result:
-            return result.args[0]
-        except HTTPException as result:
-            return result
-
-        return result
-
-    def render(self):
-        """ render form """
-        return render(self.request, self.tmpl_view, self)
+    def add_error_message(self, msg):
+        """ add form error message """
+        add_message(self.request, msg, 'form:error')
 
     def __call__(self):
         """ update form and render form to response """
         try:
-            result = self.update()
+            result = self.update_form()
         except HTTPResponseIsReady as result:
             return result.args[0]
         except HTTPException as result:

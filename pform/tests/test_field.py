@@ -97,27 +97,6 @@ class TestField(BaseTestCase):
         self.assertIs(widget.extract(), 'TEST')
         self.assertIs(widget.extract(default='test'), 'TEST')
 
-    def test_field_render(self):
-        class MyField(pform.Field):
-
-            def tmpl_input(self, **args):
-                return 'INPUT'
-
-            def tmpl_display(self, **args):
-                return 'DISPLAY'
-
-        request = self.make_request()
-
-        field = MyField('test')
-        widget = field.bind(request, 'field.', pform.null, request)
-        widget.request = request
-
-        widget.mode = pform.FORM_INPUT
-        self.assertEqual(widget.render(), 'INPUT')
-
-        widget.mode = pform.FORM_DISPLAY
-        self.assertEqual(widget.render(), 'DISPLAY')
-
     def test_field_update_mode(self):
         request = object()
         field = pform.Field('test')
@@ -178,6 +157,25 @@ class TestField(BaseTestCase):
         widget = field.bind(request, 'field.', '12345', {})
         widget.update()
         self.assertIs(widget.form_value, None)
+
+    def test_field_get_error(self):
+        err = pform.Invalid('error')
+
+        field = pform.Field('test')
+        field.error = err
+
+        self.assertIs(field.get_error(), err)
+        self.assertIsNone(field.get_error('test'))
+
+    def test_field_get_error_suberror(self):
+        err = pform.Invalid('error')
+        err1 = pform.Invalid('error2', name='test')
+        err['test'] = err1
+
+        field = pform.Field('test')
+        field.error = err
+
+        self.assertIs(field.get_error('test'), err1)
 
 
 class TestFieldFactory(BaseTestCase):

@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-version = '0.2'
+version = '0.3'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4a2',
@@ -33,9 +33,7 @@ setup(name='pform',
           "Programming Language :: Python :: 3.2",
           "Programming Language :: Python :: 3.3",
           "Programming Language :: Python :: Implementation :: CPython",
-          "Framework :: Pyramid",
-          "Topic :: Internet :: WWW/HTTP",
-          'Topic :: Internet :: WWW/HTTP :: WSGI'],
+          "Framework :: Pyramid"],
       author='Nikolay Kim',
       author_email='fafhrd91@gmail.com',
       url='https://github.com/fafhrd91/pform/',

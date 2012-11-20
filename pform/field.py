@@ -1,5 +1,4 @@
 import logging
-from pyramid.compat import string_types
 from player import render
 from pform.interfaces import _, null, required
 from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
@@ -47,7 +46,11 @@ class Field(object):
     name = ''
     title = ''
     description = ''
+
+    default = null
+    missing = required
     required = False
+
     error = None
     error_msg = ''
     error_required = _('Required')
@@ -75,8 +78,8 @@ class Field(object):
         self.title = kw.get('title', name.capitalize())
         self.description = kw.get('description', '')
         self.readonly = kw.get('readonly', None)
-        self.default = kw.get('default', null)
-        self.missing = kw.get('missing', required)
+        self.default = kw.get('default', self.default)
+        self.missing = kw.get('missing', self.missing)
         self.preparer = kw.get('preparer', None)
         self.validator = kw.get('validator', None)
         self.required = self.missing is required
@@ -135,6 +138,13 @@ class Field(object):
         """ convert form value to field value """
         return value
 
+    def get_error(self, name=None):
+        if name is None:
+            return self.error
+
+        if self.error is not None:
+            return self.error.get(name)
+
     def validate(self, value):
         """ validate value """
         if self.typ is not None and not isinstance(value, self.typ):
@@ -160,15 +170,14 @@ class Field(object):
         else:
             tmpl = self.tmpl_input
 
-        if isinstance(tmpl, string_types):
-            return render(self.request, tmpl, self, view=self)
-        else:
-            return tmpl(view=self, context=self, request=self.request)
+        return render(self.request, tmpl, self,
+                      view=self, value=self.form_value)
 
     def render_widget(self):
         """ render field widget """
         tmpl = self.tmpl_widget or 'fields:widget'
-        return render(self.request, tmpl, self, view=self)
+        return render(self.request, tmpl, self,
+                      view=self, value=self.form_value)
 
     def __repr__(self):
         return '<%s %r>' % (self.__class__.__name__, self.name)

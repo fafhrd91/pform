@@ -2,7 +2,6 @@
 import pytz
 import datetime
 import decimal
-from pyramid.i18n import get_localizer
 from pyramid.compat import NativeIO, text_type, PY3
 
 from pform import iso8601
@@ -204,7 +203,7 @@ class Number(object):
         try:
             return str(self.typ(value))
         except Exception:
-            raise Invalid(self.error_msg, self, {'val': value})
+            raise Invalid(self.error_msg, self)
 
     def to_field(self, value):
         if value != 0 and not value:
@@ -213,7 +212,7 @@ class Number(object):
         try:
             return self.typ(value)
         except Exception:
-            raise Invalid(self.error_msg, self, {'val': value})
+            raise Invalid(self.error_msg, self, mapping={'val': value})
 
 
 @field('int')
@@ -362,7 +361,7 @@ class DateField(TextField):
             try:
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.date(year, month, day)
-            except Exception as e:
+            except Exception:
                 raise Invalid(self.error_invalid_date, self)
 
         return result
@@ -399,7 +398,7 @@ class DateTimeField(TextField):
         try:
             result = iso8601.parse_date(
                 value, default_timezone=self.default_tzinfo)
-        except (iso8601.ParseError, TypeError) as e:
+        except (iso8601.ParseError, TypeError):
             try:
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.datetime(year, month, day,

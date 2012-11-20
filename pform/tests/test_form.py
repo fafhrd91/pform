@@ -21,7 +21,7 @@ class TestFormWidgets(TestCase):
         self.assertEqual(widgets.request, request)
 
     def test_extract_convert_strings(self):
-        from pform import Invalid, Form, FormWidgets, Fieldset
+        from pform import Invalid, Form, FormWidgets
 
         class MyForm(Form):
             def validate(self, data, errors):
@@ -113,7 +113,7 @@ class TestForm(BaseTestCase):
         form = Form(None, request)
 
         form_content = {'test': 'test1'}
-        form.update(**form_content)
+        form.update_form(form_content)
         self.assertEqual(form.form_content(), form_content)
 
     def test_csrf_token(self):
@@ -134,7 +134,7 @@ class TestForm(BaseTestCase):
 
         form_ob.csrf = True
         self.assertRaises(HTTPForbidden, form_ob.validate_csrf_token)
-        self.assertRaises(HTTPForbidden, form_ob.validate, {}, [])
+        self.assertRaises(HTTPForbidden, form_ob.validate_form, {}, [])
 
         request.POST = {form_ob.csrfname: token}
         self.assertIsNone(form_ob.validate_csrf_token())
@@ -194,15 +194,12 @@ class TestForm(BaseTestCase):
         self.assertEqual(list(form.form_params().values()), ['info'])
 
     def test_form_mode(self):
-        from pform.form import Form, DisplayForm, \
-            FORM_INPUT, FORM_DISPLAY
+        from pform.form import Form, DisplayForm, FORM_INPUT, FORM_DISPLAY
 
-        request = DummyRequest()
-
-        form = Form(None, request)
+        form = Form(None, self.request)
         self.assertEqual(form.mode, FORM_INPUT)
 
-        form = DisplayForm(None, request)
+        form = DisplayForm(None, self.request)
         self.assertEqual(form.mode, FORM_DISPLAY)
 
     def test_form_update_widgets(self):
@@ -212,19 +209,19 @@ class TestForm(BaseTestCase):
         request.POST = {}
 
         form_ob = pform.Form(None, request)
-        form_ob.update()
+        form_ob.update_form()
 
         self.assertIsInstance(form_ob.widgets, pform.FormWidgets)
         self.assertEqual(form_ob.widgets.mode, form_ob.mode)
 
         form_ob.mode = pform.FORM_DISPLAY
-        form_ob.update()
+        form_ob.update_form()
         self.assertEqual(form_ob.widgets.mode, pform.FORM_DISPLAY)
 
         self.assertEqual(len(form_ob.widgets), 0)
 
         form_ob.fields = pform.Fieldset(pform.TextField('test'))
-        form_ob.update()
+        form_ob.update_form()
         self.assertEqual(len(form_ob.widgets), 1)
         self.assertIn('test', form_ob.widgets)
         self.assertIn('test', [f.name for f in form_ob.widgets.fields()])
@@ -232,25 +229,6 @@ class TestForm(BaseTestCase):
         self.assertIsInstance(form_ob.widgets['test'], pform.TextField)
         self.assertEqual(form_ob.widgets['test'].name, 'test')
         self.assertEqual(form_ob.widgets['test'].id, 'form-widgets-test')
-
-    def test_form_fields_filter(self):
-        import pform
-
-        class MyForm(pform.Form):
-
-            fields = pform.Fieldset(
-                pform.TextField(name = 'test'),
-                pform.TextField(name = 'test1'))
-
-            def filter(self, fs, fields):
-                for field in fields:
-                    if field.name == 'test':
-                        yield field
-
-        form_ob = MyForm(None, self.request)
-        form_ob.update()
-
-        self.assertEqual(tuple(form_ob.widgets.keys()), ('test',))
 
     def test_form_extract(self):
         import pform
@@ -260,13 +238,13 @@ class TestForm(BaseTestCase):
 
         form_ob = pform.Form(None, request)
         form_ob.fields = pform.Fieldset(pform.TextField('test'))
-        form_ob.update()
+        form_ob.update_form()
 
         data, errors = form_ob.extract()
         self.assertEqual(errors[0].msg, 'Required')
 
         request.POST = {'test': 'Test string'}
-        form_ob.update()
+        form_ob.update_form()
         data, errors = form_ob.extract()
         self.assertEqual(data['test'], 'Test string')
 
@@ -340,12 +318,46 @@ class TestForm(BaseTestCase):
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
 
+    def test_form_render_view_config_return_none(self):
+        import pform
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update_form(self):
+                return
+
+        self.config.add_view(
+            name='test', view=CustomForm,
+            renderer='pform:tests/test-form.pt')
+
+        resp = render_view_to_response(None, self.request, 'test', False)
+        self.assertIn('<h1>Custom form</h1>', str(resp))
+
     def test_form_render_view_config_layout(self):
         import pform, player
         request = self.make_request()
 
         class CustomForm(pform.Form):
             fields = pform.Fieldset(pform.TextField('test'))
+
+        self.config.add_view(
+            name='test', view=CustomForm, renderer=player.layout())
+        self.config.add_layout(
+            renderer='pform:tests/test-layout.pt')
+
+        resp = render_view_to_response(None, request, 'test', False)
+        self.assertIn('<form action="http://example.com"', str(resp))
+
+    def test_form_render_view_config_layout_return_none(self):
+        import pform, player
+        request = self.make_request()
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update_form(self):
+                return
 
         self.config.add_view(
             name='test', view=CustomForm, renderer=player.layout())
@@ -478,7 +490,7 @@ class TestForm(BaseTestCase):
         res = CustomForm(object(), request)()
         self.assertIsInstance(res, HTTPFound)
 
-    def test_form_update_return_response(self):
+    def test_update_return_response(self):
         import pform
         request = self.make_request()
         response = request.response
@@ -492,33 +504,74 @@ class TestForm(BaseTestCase):
         res = CustomForm(object(), request)()
         self.assertIs(res, response)
 
-    def test_form_update_to_resp(self):
+    def test_update_form(self):
         import pform
         request = self.make_request()
-        response = request.response
 
         class CustomForm(pform.Form):
             fields = pform.Fieldset(pform.TextField('test'))
 
             def update(self):
-                super(CustomForm, self).update()
-                return response
+                return {1: 'test'}
 
-            @pform.button('test1')
-            def handler1(self):
-                raise HTTPFound(location='.')
-
-            @pform.button('test2')
-            def handler2(self):
-                return HTTPFound(location='.')
-
-        res = CustomForm(object(), request)
-        self.assertIs(res.update_to_resp(), response)
-
-        request = self.make_request(POST={'form.buttons.test1': 'test'})
         form = CustomForm(object(), request)
-        self.assertIsInstance(form.update_to_resp(), HTTPFound)
 
-        request = self.make_request(POST={'form.buttons.test2': 'test'})
-        form = CustomForm(object(), request)
-        self.assertIsInstance(form.update_to_resp(), HTTPFound)
+        res = form.update_form()
+        self.assertEqual(res, {1: 'test'})
+
+    def test_update_form_return_response(self):
+        import pform
+        request = self.make_request()
+
+        resp = HTTPFound()
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update_form(self):
+                return resp
+
+        res = CustomForm(object(), request)()
+        self.assertIs(res, resp)
+
+    def test_validate(self):
+        from pform import Invalid, Form
+
+        class MyForm(Form):
+            def validate(self, data, errors):
+                errors.append(Invalid('error1'))
+
+        form = MyForm(object(), self.request)
+
+        errors = []
+        form.validate({}, errors)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].msg, 'error1')
+
+    def test_validate_form(self):
+        from pform import Invalid, Form
+
+        class MyForm(Form):
+            def validate(self, data, errors):
+                errors.append(Invalid('error1'))
+
+        form = MyForm(object(), self.request)
+
+        errors = []
+        form.validate_form({}, errors)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].msg, 'error1')
+
+    def test_validate_form_raise(self):
+        from pform import Invalid, Form
+
+        class MyForm(Form):
+            def validate(self, data, errors):
+                raise Invalid('error1')
+
+        form = MyForm(object(), self.request)
+
+        errors = []
+        form.validate_form({}, errors)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].msg, 'error1')

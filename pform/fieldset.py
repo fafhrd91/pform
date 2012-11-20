@@ -72,7 +72,7 @@ class Fieldset(OrderedDict):
     def validate(self, data):
         self.validator(self, data)
 
-    def bind(self, request, data=None, params={}, context=None, filter=None):
+    def bind(self, request, data=None, params={}, context=None):
         clone = Fieldset(
             name=self.name,
             title=self.title,
@@ -86,21 +86,14 @@ class Fieldset(OrderedDict):
         clone.params = params
         clone.data = data
 
-        values = self.values()
-
-        if filter is None:
-            filter = self.filter
-        if filter is not None:
-            values = filter(clone, values)
-
-        for field in values:
+        for name, field in self.items():
             if isinstance(field, Fieldset):
-                clone[field.name] = field.bind(
-                    request, data.get(field.name, None), params, context)
+                clone[name] = field.bind(
+                    request, data.get(name, None), params, context)
             else:
-                clone[field.name] = field.bind(
+                clone[name] = field.bind(
                     request, self.prefix,
-                    data.get(field.name, null), params, context)
+                    data.get(name, null), params, context)
 
         return clone
 

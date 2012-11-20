@@ -8,7 +8,7 @@
   <div class="controls">
     {{context.render()|safe}}
     {% if error %}
-    <span class="help-inline">{{error.msg|safe}}</span>
+    <span class="help-inline">{{error|safe}}</span>
     {% endif %}
     {% if context.description %}
     <p class="help-block">{{context.description|safe}}</p>

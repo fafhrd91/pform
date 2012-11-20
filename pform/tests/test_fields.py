@@ -5,7 +5,7 @@ from pyramid.compat import text_type
 import pform
 from pform import iso8601
 
-from base import TestCase, BaseTestCase
+from base import BaseTestCase
 
 
 def invalid_exc(func, *arg, **kw):

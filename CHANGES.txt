@@ -7,13 +7,11 @@ CHANGES
 
 - Allow to add `str` as error in `Form.validate` method
 
-- Allow to filter out fields in fieldset on bind
-
-- If `filter` method defined for `Form` pass it to fieldset bind call
-
 - Better tanslations for `Invalid` messages
 
 - Changed arguments order for `Invalid` class contrustor 
+
+- Added sub errors support to `Invalid` class
 
 - Added `extract` parameter to `Button` class, if extract is set then action
   extract values from form, adds errors to message and pass data to handler

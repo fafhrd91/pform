@@ -10,7 +10,7 @@ __all__ = [
     'DateField','DateTimeField','RadioField','BoolField','ChoiceField',
     'MultiChoiceField','MultiSelectField','TimezoneField','VocabularyField',
     'BaseChoiceField','BaseMultiChoiceField','Form','DisplayForm','FormWidgets',
-    'button','Button','Buttons','AC_DEFAULT','AC_PRIMARY','AC_DANGER',
+    'button','button2','Button','Buttons','AC_DEFAULT','AC_PRIMARY','AC_DANGER',
     'AC_SUCCESS','AC_INFO','AC_WARNING','parse_date','includeme'
 ]
 

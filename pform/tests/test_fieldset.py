@@ -142,35 +142,6 @@ class TestFieldset(BaseTestCase):
         fs = fieldset.bind(request)
         self.assertIs(fs['fs']['test'].value, pform.null)
 
-    def test_fieldset_filter_in_ctor(self):
-        def filter(fs, fields):
-            for field in fields:
-                if field.name == 'test':
-                    yield field
-
-        fieldset = pform.Fieldset(
-            field, field1, filter=filter)
-
-        fs = fieldset.bind(self.request, {}, {})
-        self.assertEqual(tuple(fs.keys()), ('test',))
-
-    def test_fieldset_filter_in_bind(self):
-        def filter(fs, fields):
-            for field in fields:
-                if field.name == 'test':
-                    yield field
-
-        def filter1(fs, fields):
-            for field in fields:
-                if field.name == 'test1':
-                    yield field
-
-        fieldset = pform.Fieldset(
-            field, field1, filter=filter)
-
-        fs = fieldset.bind(self.request, {}, {}, filter=filter1)
-        self.assertEqual(tuple(fs.keys()), ('test1',))
-
     def test_fieldset_validate(self):
         def validator(fs, data):
             raise pform.Invalid('msg', fs)

@@ -12,12 +12,30 @@ FORM_DISPLAY = 'form-display'
 
 class Invalid(Exception):
     """An exception raised by data types and validators indicating that
-    the value for a particular field was not valid."""
+    the value for a particular field was not valid.
 
-    def __init__(self, msg, field=None, mapping=None):
+    ``msg``: Error message
+
+    ``field``: Field object
+
+    ``mapping``: Mapping for translate message interpolation
+
+    ``name``: Custom error name
+
+    ``errors``: Sub errors
+    """
+
+    def __init__(self, msg='', field=None, mapping=None, name=None,errors=None):
         self.msg = msg
         self.field = field
         self.mapping = mapping
+        self.name = name
+
+        self.errors = {}
+
+        if errors:
+            for err in errors:
+                self[err.name] = err
 
     def __str__(self):
         request = getattr(self.field, 'request', None)
@@ -30,11 +48,28 @@ class Invalid(Exception):
         return get_localizer(request).translate(self.msg, mapping=self.mapping)
 
     def __repr__(self):
-        return 'Invalid(%s: <%s>)' % (self.field, self.msg)
+        return 'Invalid%s(%s: <%s>)' % (
+            ':%s'%self.name if self.name else '', self.field, self.msg)
+
+    def __setitem__(self, name, err):
+        """ Add a subexception """
+        err.name = name
+        self.errors[name] = err
+
+    def __getitem__(self, name):
+        """ Get a subexception by name """
+        return self.errors[name]
+
+    def get(self, name, default=None):
+        """ Get a subexception by name """
+        return self.errors.get(name)
 
 
 class _null(object):
     """ Represents a null value in field-related operations. """
+
+    def __len__(self):
+        return 0
 
     def __nonzero__(self):
         return False
@@ -49,6 +84,9 @@ null = _null()
 
 class _required(object):
     """ Represents a required value in field-related operations. """
+
+    def __len__(self):
+        return 0
 
     def __nonzero__(self):
         return False
@@ -137,15 +175,4 @@ def VocabularyFactory(context):
 
     :param context: Field context
     :rtype: Vocabulary instance
-    """
-
-
-def FieldsetFilter(fieldset, items):
-    """
-    A ``filter`` is called by fieldset during binding. It should
-    return sequence of field.
-
-    :param fieldset: Cloned fieldset with all attributes set except fields
-    :param fields: Result of ``Fieldset.values`` method
-    :rtype: Sequence of fields
     """
