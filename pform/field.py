@@ -49,7 +49,7 @@ class Field(object):
 
     default = null
     missing = required
-    required = False
+    required = None
 
     error = None
     error_msg = ''
@@ -82,7 +82,8 @@ class Field(object):
         self.missing = kw.get('missing', self.missing)
         self.preparer = kw.get('preparer', None)
         self.validator = kw.get('validator', None)
-        self.required = self.missing is required
+        if self.required is None:
+            self.required = self.missing is required
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
@@ -126,9 +127,9 @@ class Field(object):
                 value = self.to_form(value)
             except Invalid as err:
                 value = null
-                log.error("%s", err)
+                log.error("Field(%s): %s", self.name, err)
 
-            self.form_value = value if value is not null else None
+        self.form_value = value if value is not null else None
 
     def to_form(self, value):
         """ return value representation siutable for html widget """

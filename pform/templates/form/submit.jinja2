@@ -1,1 +1,9 @@
-<input type="submit" {%if context.id%}id="{{context.id}}" {%endif%}{%if context.klass%}class="{{context.klass}}" {%endif%}{%if context.name%}name="{{context.name}}" {%endif%}{%if context.lang%}lang="{{context.lang}}" {%endif%}{%if context.title%}value="{{context.title}}" {%endif%}{%if context.disabled%}disabled="{{context.disabled}}" {%endif%}{%if context.tabindex%}tabindex="{{context.tabindex}}" {%endif%}{%if context.readonly%}readonly="{{context.readonly}}" {%endif%}{%if context.alt%}alt="{{context.alt}}" {%endif%}{%if context.accesskey%}accesskey="{{context.accesskey}}"{%endif%}>
+<input type="submit"
+       id="{{context.id}}" name="{{context.name}}" value="{{context.title}}"
+       {{{'class': context.klass,
+          'lang': context.lang,
+          'disable': context.disabled,
+          'tabindex': context.tabindex,
+          'readonly': context.readonly,
+          'alt': context.alt,
+          'accesskey': context.accesskey}|xmlattr}}>

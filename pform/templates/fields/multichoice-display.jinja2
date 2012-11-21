@@ -1,0 +1,7 @@
+<span {{{'id':context.id, 'class':context.klass,
+      'title':context.title, 'lang':context.lang}|xmlattr}}>
+
+  {% for value in context.displayValue %}
+    <span class="selected-option">{{value}}</span>
+  {% endfor %}
+</span>

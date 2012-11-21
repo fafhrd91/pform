@@ -1,0 +1,6 @@
+<span class="uneditable-input">
+  <span {{{'id':context.id, 'class':context.klass,
+           'title':context.title, 'lang':context.lang}|xmlattr}}>
+    {% if context.form_value %} {{context.form_value}} {% endif %}
+  </span>
+</span>

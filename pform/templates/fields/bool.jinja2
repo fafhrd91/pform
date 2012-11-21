@@ -1,0 +1,12 @@
+<div class="inline-inputs">
+  {% for item in context.items %}
+    <input type="radio" id="{{item['id']}}" name="{{item['name']}}"
+           class="{{context.klass}}" value="{{item['value']}}"
+           title="{{context.title}}"
+       {{ {'lang': context.lang, 'disabled': context.disabled,
+           'tabindex': context.tabindex, 'readonly': context.readonly,
+           'alt':  context.alt, 'accesskey': context.accesskey,
+           'checked' checked and 'checked' or None}|xmlattr}}>
+    {{item.label}}
+  {% endfor %}
+</div>

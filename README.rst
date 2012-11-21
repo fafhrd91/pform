@@ -46,7 +46,7 @@ actions `safe` and `cancel` (submit buttons). Now we can render this form:
 
     from pyramid.view import view_config
 
-    @view_config(route_name='....', renderer='myview.pt')
+    @view_config(route_name='....', renderer='myview.jinja2')
     def my_view(request):
         form = EditForm(some_context, request)
         return form()

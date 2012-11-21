@@ -5,7 +5,7 @@ from pyramid.compat import text_type
 import pform
 from pform import iso8601
 
-from base import BaseTestCase
+from base import strip, BaseTestCase
 
 
 def invalid_exc(func, *arg, **kw):
@@ -16,10 +16,6 @@ def invalid_exc(func, *arg, **kw):
         return e
     else:
         raise AssertionError('Invalid not raised')
-
-
-def strip(str):
-    return ' '.join(s.strip() for s in str.split())
 
 
 class TestInputField(BaseTestCase):
@@ -58,25 +54,28 @@ class TestTextField(BaseTestCase):
         self.assertEqual(field.to_form('value'), 'value')
         self.assertEqual(field.to_field('value'), 'value')
 
-        res = ' '.join(sorted(strip(field.render()).split()))
+        res = field.render()
         self.assertEqual(
-            '/> <input class="text-widget" id="test" name="test" title="Test" type="text" value="content"', res)
+            '<input type="text" id="test" name="test" class="text-widget" title="Test" value="content" >',
+            strip(res))
 
         field.mode = pform.FORM_DISPLAY
 
-        res = ' '.join(sorted(strip(field.render()).split()))
-        self.assertIn('<span class="uneditable-input"', res)
+        res = field.render()
+        self.assertIn('<span class="uneditable-input"', strip(res))
 
         field = self._makeOne('test')
         field = field.bind(request, '', 'content', {'test': 'form'})
         field.update()
 
-        res = ' '.join(sorted(strip(field.render()).split()))
-        self.assertIn('input class="text-widget" id="test"', res)
+        res = field.render()
+        self.assertIn(
+            '<input type="text" id="test" name="test" class="text-widget" title="Test" value="form" >',
+            strip(res))
 
         field.mode = pform.FORM_DISPLAY
-        res = ' '.join(sorted(strip(field.render()).split()))
-        self.assertIn('<span class="uneditable-input"', res)
+        res = field.render()
+        self.assertIn('<span class="uneditable-input"', strip(res))
 
 
 class TestIntegerField(BaseTestCase):
@@ -99,10 +98,10 @@ class TestIntegerField(BaseTestCase):
         self.assertEqual(field.to_field('10'), 10)
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = ' '.join(sorted(strip(field.render()).split()))
-
+        res = field.render()
         self.assertEqual(
-            '/> <input class="int-widget" id="test" name="test" title="Test" type="text" value="10"', res)
+            '<input type="text" id="test" name="test" class="int-widget" title="Test" value="10" >',
+            strip(res))
 
 
 class TestFloatField(BaseTestCase):
@@ -125,9 +124,10 @@ class TestFloatField(BaseTestCase):
         self.assertEqual(field.to_field('10.34'), 10.34)
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = ' '.join(sorted(strip(field.render()).split()))
+        res = field.render()
         self.assertEqual(
-            '/> <input class="float-widget" id="test" name="test" title="Test" type="text" value="10.34"', res)
+            '<input type="text" id="test" name="test" class="float-widget" title="Test" value="10.34" >',
+            strip(res))
 
 
 class TestDeciamlField(BaseTestCase):
@@ -150,11 +150,10 @@ class TestDeciamlField(BaseTestCase):
         self.assertEqual(field.to_field('10.34'), decimal.Decimal('10.34'))
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = ' '.join(sorted(strip(field.render()).split()))
-
+        res = field.render()
         self.assertEqual(
-            '/> <input class="decimal-widget" id="test" name="test" title="Test" type="text" value="10.34"',
-            res)
+            '<input type="text" id="test" name="test" class="decimal-widget" title="Test" value="10.34" >',
+            strip(res))
 
 
 class TestLinesField(BaseTestCase):
@@ -177,8 +176,10 @@ class TestLinesField(BaseTestCase):
         self.assertEqual(field.to_field('1\n2\n3'), ['1','2','3'])
         self.assertRaises(pform.Invalid, field.to_field, 5)
 
-        res = ' '.join(sorted(strip(field.render()).split()))
-        self.assertIn('<textarea class="textlines-widget"', res)
+        res = field.render()
+        self.assertIn(
+            '<textarea id="test" name="test" class="textlines-widget" title="Test" value="1 2 3" rows="5" cols="40">1 2 3</textarea>',
+            strip(res))
 
 
 class TestVocabularyField(BaseTestCase):

@@ -6,7 +6,7 @@ from pyramid.httpexceptions import HTTPFound
 import pform
 
 
-@view_config(route_name='root', renderer='__main__:simple.pt')
+@view_config(route_name='root', renderer='__main__:simple.jinja2')
 
 class MyForm(pform.Form):
 

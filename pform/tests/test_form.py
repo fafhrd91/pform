@@ -281,7 +281,7 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer='pform:tests/test-form.pt')
+            renderer='pform:tests/test-form.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False).body
 
@@ -313,7 +313,7 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer='pform:tests/test-form.pt')
+            renderer='pform:tests/test-form.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
@@ -329,7 +329,7 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer='pform:tests/test-form.pt')
+            renderer='pform:tests/test-form.jinja2')
 
         resp = render_view_to_response(None, self.request, 'test', False)
         self.assertIn('<h1>Custom form</h1>', str(resp))
@@ -344,7 +344,7 @@ class TestForm(BaseTestCase):
         self.config.add_view(
             name='test', view=CustomForm, renderer=player.layout())
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIn('<form action="http://example.com"', str(resp))
@@ -362,7 +362,7 @@ class TestForm(BaseTestCase):
         self.config.add_view(
             name='test', view=CustomForm, renderer=player.layout())
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIn('<form action="http://example.com"', str(resp))
@@ -376,9 +376,9 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer=player.layout('pform:tests/test-form.pt'))
+            renderer=player.layout('pform:tests/test-form.jinja2'))
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIn('Custom form', str(resp))
@@ -399,7 +399,7 @@ class TestForm(BaseTestCase):
             name='test', view=CustomForm,
             renderer=player.layout())
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
@@ -419,7 +419,7 @@ class TestForm(BaseTestCase):
             name='test', view=CustomForm,
             renderer=player.layout())
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
@@ -437,9 +437,9 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer=player.layout('pform:tests/test-form.pt'))
+            renderer=player.layout('pform:tests/test-form.jinja2'))
         self.config.add_layout(
-            renderer='pform:tests/test-layout.pt')
+            renderer='pform:tests/test-layout.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)
@@ -457,7 +457,7 @@ class TestForm(BaseTestCase):
 
         self.config.add_view(
             name='test', view=CustomForm,
-            renderer='pform:tests/test-form.pt')
+            renderer='pform:tests/test-form.jinja2')
 
         resp = render_view_to_response(None, request, 'test', False)
         self.assertIsInstance(resp, HTTPFound)

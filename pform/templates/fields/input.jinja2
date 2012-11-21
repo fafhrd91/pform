@@ -1,0 +1,6 @@
+<input type="text" id="{{context.id}}" name="{{context.name}}"
+       class="{{context.klass}}" title="{{context.title}}" value="{{value}}"
+       {{ {'lang': context.lang, 'disabled': context.disabled,
+           'tabindex': context.tabindex, 'readonly': context.readonly,
+           'alt':  context.alt, 'accesskey': context.accesskey,
+           'size': context.size, 'maxlength': context.maxlength}|xmlattr}}>

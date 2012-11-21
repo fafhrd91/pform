@@ -24,9 +24,10 @@ class InputField(Field):
     accesskey = None
     size = None
     maxlength = None
+    htmltype = 'text'
 
-    tmpl_input = 'fields:text'
-    tmpl_display = 'fields:text-display'
+    tmpl_input = 'fields:input'
+    tmpl_display = 'fields:input-display'
 
     def update(self):
         super(InputField, self).update()
@@ -258,7 +259,7 @@ class FileField(TextField):
     """HTML File input widget. Field name is ``file``."""
 
     klass = 'input-file'
-    tmpl_input = 'fields:file.lt'
+    htmltype = 'file'
 
     def extract(self, default=null):
         value = self.params.get(self.name, default)
@@ -317,8 +318,8 @@ class PasswordField(TextField):
     """HTML Password input widget. Field name is ``password``."""
 
     klass = 'password-widget'
+    htmltype = 'password'
 
-    tmpl_input = 'fields:password'
     tmpl_display = 'fields:password-display'
 
 
@@ -332,8 +333,6 @@ class MultiChoiceField(BaseMultiChoiceField):
 
 class DateField(TextField):
     """Simple date input field."""
-
-    tmpl_display = 'fields:date-display'
 
     error_msg = _('"${val}" is not a date object')
     error_invalid_date = _('Invalid date')
@@ -370,8 +369,6 @@ class DateField(TextField):
 class DateTimeField(TextField):
 
     default_tzinfo = iso8601.Utc()
-
-    tmpl_display = 'fields:datetime-display'
 
     error_msg = _('"${val}" is not a datetime object')
     error_invalid_date = _('Invalid date')

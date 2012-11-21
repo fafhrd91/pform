@@ -1,0 +1,13 @@
+<select id="{{context.id}}" name="{{context.name}}"
+        class="{{context.klass}}" title="{{context.title}}"
+       {{ {'lang': context.lang, 'disabled': context.disabled,
+           'tabindex': context.tabindex, 'readonly': context.readonly,
+           'alt':  context.alt, 'accesskey': context.accesskey,
+           'size': context.size}|xmlattr}}>
+  {% for item in context.items %}
+    <option id="{{item['id']}}" value="{{item['value']}}"
+            {{{'selected': 'selected' if item['checked'] else None}|xmlattr}}>
+            {{item['label']|safe}}
+    </option>
+  {% endfor %}
+</select>
