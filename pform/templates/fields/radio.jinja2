@@ -1,13 +1,7 @@
 {% for item in context.items %}
-  <label class="radio" tal:attributes="for item['id']">
-    <input type="radio" id="{{item['id']}}" name="{{item['name']}}"
-           class="{{context.klass}}" value="{{item['value']}}"
-           title="{{context.title}}"
-       {{ {'lang': context.lang, 'disabled': context.disabled,
-           'tabindex': context.tabindex, 'readonly': context.readonly,
-           'alt':  context.alt, 'accesskey': context.accesskey,
-           'size': context.size,
-           'checked': 'checked' if item['checked'] else None}|xmlattr}}>
+  <label class="{{context.html_type}}" for="{{item['id']}}">
+    <input type="{{context.html_type}}"
+           {{ context.get_html_attrs(**item)|xmlattr }}>
     {{item['label']}}
   </label>
   {% if item.description %}

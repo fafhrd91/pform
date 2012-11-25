@@ -6,7 +6,7 @@
        {{ {'lang': context.lang, 'disabled': context.disabled,
            'tabindex': context.tabindex, 'readonly': context.readonly,
            'alt':  context.alt, 'accesskey': context.accesskey,
-           'checked' checked and 'checked' or None}|xmlattr}}>
+           'checked': 'checked' if item['checked'] else None}|xmlattr}}>
     {{item.label}}
   {% endfor %}
 </div>

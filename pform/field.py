@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 from player import render
 from pform.interfaces import _, null, required
 from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
@@ -62,6 +63,8 @@ class Field(object):
     value = null
     form_value = None
     context = None
+
+    suffix = None
 
     id = None
     klass = None
@@ -157,12 +160,18 @@ class Field(object):
         if self.validator is not None:
             self.validator(self, value)
 
-    def extract(self, default=null):
+    def extract(self):
         """ extract value from params """
-        value = self.params.get(self.name, default)
-        if value is default or not value:
-            return default
-        return value
+        if self.suffix is None:
+            return self.params.get(self.name, null)
+
+        data = {}
+        for s in self.suffix:
+            data[s] = self.params.get('%s-%s'%(self.name, s), null)
+            if data[s] is null:
+                return null
+
+        return data
 
     def render(self):
         """ render field """
@@ -182,6 +191,36 @@ class Field(object):
 
     def __repr__(self):
         return '<%s %r>' % (self.__class__.__name__, self.name)
+
+
+class InputField(Field):
+
+    html_type = 'text'
+    html_attrs = ('id', 'name', 'title', 'lang', 'disabled', 'tabindex',
+                  'lang', 'disabled', 'readonly', 'alt', 'accesskey',
+                  'size', 'maxlength')
+
+    tmpl_input = 'fields:input'
+    tmpl_display = 'fields:input-display'
+
+    def update(self):
+        super(InputField, self).update()
+
+        if self.readonly:
+            self.add_css_class('disabled')
+
+    def get_html_attrs(self, **kw):
+        attrs = OrderedDict()
+        attrs['class'] = getattr(self, 'klass', None)
+        attrs['value'] = kw.get('value', self.form_value)
+        for name in self.html_attrs:
+            val = getattr(self, name, None)
+            attrs[name] = kw.get(name, val)
+
+        return attrs
+
+    def add_css_class(self, css):
+        self.klass = ('%s %s' % (self.klass or '', css)).strip()
 
 
 class FieldFactory(Field):

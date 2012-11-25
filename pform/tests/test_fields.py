@@ -56,7 +56,7 @@ class TestTextField(BaseTestCase):
 
         res = field.render()
         self.assertEqual(
-            '<input type="text" id="test" name="test" class="text-widget" title="Test" value="content" >',
+            '<input type="text" class="text-widget" value="content" id="test" name="test" title="Test">',
             strip(res))
 
         field.mode = pform.FORM_DISPLAY
@@ -70,7 +70,7 @@ class TestTextField(BaseTestCase):
 
         res = field.render()
         self.assertIn(
-            '<input type="text" id="test" name="test" class="text-widget" title="Test" value="form" >',
+            '<input type="text" class="text-widget" value="form" id="test" name="test" title="Test">',
             strip(res))
 
         field.mode = pform.FORM_DISPLAY
@@ -100,7 +100,7 @@ class TestIntegerField(BaseTestCase):
 
         res = field.render()
         self.assertEqual(
-            '<input type="text" id="test" name="test" class="int-widget" title="Test" value="10" >',
+            '<input type="text" class="int-widget" value="10" id="test" name="test" title="Test">',
             strip(res))
 
 
@@ -126,7 +126,7 @@ class TestFloatField(BaseTestCase):
 
         res = field.render()
         self.assertEqual(
-            '<input type="text" id="test" name="test" class="float-widget" title="Test" value="10.34" >',
+            '<input type="text" class="float-widget" value="10.34" id="test" name="test" title="Test">',
             strip(res))
 
 
@@ -152,7 +152,7 @@ class TestDeciamlField(BaseTestCase):
 
         res = field.render()
         self.assertEqual(
-            '<input type="text" id="test" name="test" class="decimal-widget" title="Test" value="10.34" >',
+            '<input type="text" class="decimal-widget" value="10.34" id="test" name="test" title="Test">',
             strip(res))
 
 
@@ -168,7 +168,6 @@ class TestLinesField(BaseTestCase):
         field = field.bind(request, '', ['1','2','3'], {})
         field.update()
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form(['1','2','3']), '1\n2\n3')
         self.assertRaises(pform.Invalid, field.to_form, 1)
 
@@ -178,7 +177,7 @@ class TestLinesField(BaseTestCase):
 
         res = field.render()
         self.assertIn(
-            '<textarea id="test" name="test" class="textlines-widget" title="Test" value="1 2 3" rows="5" cols="40">1 2 3</textarea>',
+            '<textarea  class="textlines-widget" value="1 2 3" id="test" name="test" title="Test" rows="5" cols="40">1 2 3</textarea>',
             strip(res))
 
 
@@ -315,7 +314,6 @@ class TestBaseChoiceField(BaseTestCase):
         field.params = {'test': 'three'}
         self.assertIs(field.extract(), 'three')
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form(1), 'one')
         self.assertRaises(pform.Invalid, field.to_form, 10)
         self.assertRaises(pform.Invalid, field.to_form, [1, 10])
@@ -345,7 +343,6 @@ class TestBaseMultiChoiceField(BaseTestCase):
         field = orig_field.bind(request, '', [1,3], {})
         field.update()
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form([1,2]), ['one','two'])
         self.assertRaises(pform.Invalid, field.to_form, 1)
         self.assertRaises(pform.Invalid, field.to_form, [1, 10])
@@ -365,7 +362,7 @@ class TestBaseMultiChoiceField(BaseTestCase):
 
         self.assertIs(field.extract(), pform.null)
 
-        field.params = MultiDict((('test', field.noValueToken),
+        field.params = MultiDict((('test', field.no_value_token),
                                   ('test', 'one')))
         self.assertEqual(field.extract(), ['one'])
 

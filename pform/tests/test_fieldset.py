@@ -196,6 +196,15 @@ class TestFieldset(BaseTestCase):
         self.assertFalse(bool(errors))
         self.assertEqual(data['test'], 'FORM')
 
+    def test_fieldset_extract_invalid_to_field(self):
+        field = pform.IntegerField('test')
+        fieldset = pform.Fieldset(field).bind(
+            self.request, params={'test': '123.456'})
+
+        data, errors = fieldset.extract()
+        self.assertTrue(bool(errors))
+        self.assertEqual('"123.456" is not a number', str(errors[0]))
+
     def test_fieldset_extract_nested(self):
         field = self._makeOne('test')
         fieldset = pform.Fieldset(
@@ -250,3 +259,42 @@ class TestFieldsetErrors(BaseTestCase):
 
         self.assertFalse(bool(pform.required))
         self.assertEqual(repr(pform.required), '<widget.required>')
+
+    def test_fieldset_contains_by_fieldname(self):
+        f = field.bind(self.request,'','',{})
+        f.name = 'field'
+
+        err1 = pform.Invalid('error1', f)
+        err2 = pform.Invalid('error2')
+
+        fieldset = object()
+
+        errors = pform.FieldsetErrors(fieldset, err1, err2)
+        self.assertIn('field', errors)
+        self.assertNotIn('field2', errors)
+
+    def test_fieldset_add_field_error(self):
+        f = field.bind(self.request,'','',{})
+        f.name = 'field'
+        fieldset = pform.Fieldset(f)
+
+        err = pform.Invalid('error')
+
+        errors = pform.FieldsetErrors(fieldset)
+        errors.add_field_error('field', err)
+
+        self.assertIn('field', errors)
+        self.assertIn(err, errors)
+        self.assertIs(f.error, err)
+
+    def test_fieldset_add_field_error_str(self):
+        f = field.bind(self.request,'','',{})
+        f.name = 'field'
+        fieldset = pform.Fieldset(f)
+
+        errors = pform.FieldsetErrors(fieldset)
+        errors.add_field_error('field', 'error')
+
+        self.assertIn('field', errors)
+        self.assertIn(errors[0].msg, 'error')
+        self.assertIs(f.error.msg, 'error')

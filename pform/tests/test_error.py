@@ -2,7 +2,7 @@
 from base import TestCase, BaseTestCase
 
 
-class TestInvalid(TestCase):
+class TestInvalid(BaseTestCase):
 
     def test_ctor_default(self):
         from pform import Invalid
@@ -26,9 +26,6 @@ class TestInvalid(TestCase):
         self.assertEqual(err.mapping, {'1':'2'})
         self.assertEqual(err.name, 'err_name')
         self.assertEqual(err.errors, {'serror': serror})
-
-
-class TestInvalidTranslate(BaseTestCase):
 
     def test_str(self):
         from pform import Invalid, Field
@@ -75,6 +72,7 @@ class TestInvalidTranslate(BaseTestCase):
         serr = Invalid()
         err['test'] = serr
 
+        self.assertIn('test', err)
         self.assertIs(err['test'], serr)
         self.assertEqual(serr.name, 'test')
 

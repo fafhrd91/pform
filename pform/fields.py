@@ -6,37 +6,9 @@ from pyramid.compat import NativeIO, text_type, PY3
 
 from pform import iso8601
 from pform import vocabulary
-from pform.field import Field
+from pform.field import Field, InputField
 from pform.directives import field
 from pform.interfaces import _, null, Invalid, ITerm
-
-
-class InputField(Field):
-
-    title = None
-    lang = None
-    disabled = None
-    tabindex = None
-    lang = None
-    disabled = None
-    readonly = None
-    alt = None
-    accesskey = None
-    size = None
-    maxlength = None
-    htmltype = 'text'
-
-    tmpl_input = 'fields:input'
-    tmpl_display = 'fields:input-display'
-
-    def update(self):
-        super(InputField, self).update()
-
-        if self.readonly:
-            self.add_css_class('disabled')
-
-    def add_css_class(self, css):
-        self.klass = ('%s %s' % (self.klass or '', css)).strip()
 
 
 class VocabularyField(InputField):
@@ -44,7 +16,7 @@ class VocabularyField(InputField):
     vocabulary = None
     voc_factory = None
 
-    noValueToken = '--NOVALUE--'
+    no_value_token = '--NOVALUE--'
 
     def __init__(self, name, **kw):
         super(VocabularyField, self).__init__(name, **kw)
@@ -69,30 +41,25 @@ class VocabularyField(InputField):
 
     def update_items(self):
         self.items = []
+
         for count, term in enumerate(self.vocabulary):
-            checked = self.is_checked(term)
-            id = '%s-%i' % (self.id, count)
-            label = term.token
-            desc = None
-            if ITerm.providedBy(term):
-                label = term.title if term.title is not None else term.token
-                desc = term.description
+            label = term.title if term.title is not None else term.token
+
             self.items.append(
-                {'id': id, 'name': self.name, 'value': term.token,
-                 'label': label, 'description': desc, 'checked': checked})
+                {'id': '%s-%i' % (self.id, count), 'name': self.name,
+                 'value': term.token, 'label': label,
+                 'description': term.description,
+                 'checked': self.is_checked(term)})
 
 
 class BaseChoiceField(VocabularyField):
-    """ choice field """
+    """ base choice field """
 
     tmpl_display = 'fields:choice-display'
 
     error_msg = _('"${val}" is not in vocabulary')
 
     def to_form(self, value):
-        if value is null:
-            return null
-
         try:
             return self.vocabulary.get_term(value).token
         except LookupError:
@@ -107,16 +74,6 @@ class BaseChoiceField(VocabularyField):
         except LookupError:
             raise Invalid(self.error_msg, self, {'val': value})
 
-    def extract(self, default=null):
-        value = self.params.get(self.name, default)
-        if value is default:
-            return default
-
-        if value == self.noValueToken:
-            return default
-
-        return value
-
     def is_checked(self, term):
         return term.token == self.form_value
 
@@ -124,6 +81,13 @@ class BaseChoiceField(VocabularyField):
         super(BaseChoiceField, self).update()
 
         self.update_items()
+
+    def extract(self):
+        value = super(BaseChoiceField, self).extract()
+
+        if not value or value == self.no_value_token:
+            return null
+        return value
 
 
 class BaseMultiChoiceField(VocabularyField):
@@ -134,9 +98,6 @@ class BaseMultiChoiceField(VocabularyField):
     error_msg = _('"${val}" is not in vocabulary')
 
     def to_form(self, value):
-        if value is null:
-            return null
-
         val = value
         try:
             res = []
@@ -159,14 +120,14 @@ class BaseMultiChoiceField(VocabularyField):
         except:
             raise Invalid(self.error_msg, self, {'val': val})
 
-    def extract(self, default=null):
+    def extract(self):
         if self.name not in self.params:
-            return default
+            return null
 
         value = []
         tokens = self.params.getall(self.name)
         for token in tokens:
-            if token == self.noValueToken:
+            if token == self.no_value_token:
                 continue
 
             value.append(token)
@@ -246,10 +207,11 @@ class TextAreaField(TextField):
     """HTML Text Area input widget. Field name is ``textarea``."""
 
     klass = 'textarea-widget'
-    value = ''
+    html_attrs = TextField.html_attrs + ('rows', 'cols')
 
     rows = 5
     cols = 40
+    value = ''
 
     tmpl_input = 'fields:textarea'
 
@@ -259,10 +221,10 @@ class FileField(TextField):
     """HTML File input widget. Field name is ``file``."""
 
     klass = 'input-file'
-    htmltype = 'file'
+    html_type = 'file'
 
-    def extract(self, default=null):
-        value = self.params.get(self.name, default)
+    def extract(self):
+        value = self.params.get(self.name, null)
 
         if hasattr(value, 'file'):
             return {
@@ -282,7 +244,7 @@ class FileField(TextField):
                 'mimetype': self.params.get('%s-mimetype'%self.name, ''),
                 'size': len(value)}
 
-        return default
+        return null
 
 
 @field('lines')
@@ -295,9 +257,6 @@ class LinesField(TextAreaField):
     error_msg = _('"${val}" is not a list')
 
     def to_form(self, value):
-        if value is null or not value:
-            return null
-
         try:
             return '\n'.join(value)
         except Exception:
@@ -318,7 +277,7 @@ class PasswordField(TextField):
     """HTML Password input widget. Field name is ``password``."""
 
     klass = 'password-widget'
-    htmltype = 'password'
+    html_type = 'password'
 
     tmpl_display = 'fields:password-display'
 
@@ -411,7 +370,10 @@ class RadioField(BaseChoiceField):
     """HTML Radio input widget. Field name is ``radio``."""
 
     klass = 'radio-widget'
+    html_type = 'radio'
+    html_attrs = BaseChoiceField.html_attrs + ('checked',)
     tmpl_input = 'fields:radio'
+
 
 
 @field('bool')
@@ -441,13 +403,13 @@ class ChoiceField(BaseChoiceField):
 
         if not self.required:
             self.items.insert(0, {
-                    'id': self.id + '-novalue',
-                    'name': self.name,
-                    'value': self.noValueToken,
-                    'label': self.prompt_message,
-                    'checked': self.form_value is null,
-                    'description': '',
-                    })
+                'id': self.id + '-novalue',
+                'name': self.name,
+                'value': self.no_value_token,
+                'label': self.prompt_message,
+                'checked': self.form_value is null,
+                'description': '',
+            })
 
 
 @field('multiselect')

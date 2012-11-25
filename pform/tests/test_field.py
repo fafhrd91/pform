@@ -87,15 +87,26 @@ class TestField(BaseTestCase):
 
     def test_field_extract(self):
         field = pform.Field('test')
+        field.suffix = ('f1', 'f2')
+
+        widget = field.bind(
+            object, 'field.', pform.null, {'field.test-f1':'TEST1'})
+        self.assertIs(widget.extract(), pform.null)
+
+        widget = field.bind(
+            object, 'field.', pform.null,
+            {'field.test-f1':'TEST1', 'field.test-f2':'TEST2'})
+        self.assertEqual(widget.extract(), {'f1': 'TEST1', 'f2': 'TEST2'})
+
+    def test_field_extract_suffix(self):
+        field = pform.Field('test')
 
         widget = field.bind(object(), 'field.', pform.null, {})
 
         self.assertIs(widget.extract(), pform.null)
-        self.assertIs(widget.extract(default='test'), 'test')
 
-        widget = field.bind(object, 'field.', pform.null, {'field.test': 'TEST'})
+        widget = field.bind(object, 'field.', pform.null, {'field.test':'TEST'})
         self.assertIs(widget.extract(), 'TEST')
-        self.assertIs(widget.extract(default='test'), 'TEST')
 
     def test_field_update_mode(self):
         request = object()

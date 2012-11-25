@@ -51,6 +51,10 @@ class Invalid(Exception):
         return 'Invalid%s(%s: <%s>)' % (
             ':%s'%self.name if self.name else '', self.field, self.msg)
 
+    def __contains__(self, name):
+        """ Check for subexception """
+        return name in self.errors
+
     def __setitem__(self, name, err):
         """ Add a subexception """
         err.name = name

@@ -1,6 +1,6 @@
 """ Form Fieldset implementation """
 from collections import OrderedDict
-from pyramid.compat import text_type
+from pyramid.compat import text_type, string_types
 
 from pform.field import Field
 from pform.validator import All
@@ -113,19 +113,25 @@ class Fieldset(OrderedDict):
             if field.mode == FORM_DISPLAY:
                 continue
 
-            value = field.missing
+            value = field.extract()
+
+            if value is not null:
+                try:
+                    value = field.to_field(value)
+                except Invalid as e:
+                    data[field.name[self.lprefix:]] = value
+                    errors.append(e)
+                    continue
+
+            if value is null:
+                value = field.missing
+
             try:
-                form = field.extract()
-
-                value = field.to_field(form)
-                if value is null:
-                    value = field.missing
-
                 field.validate(value)
-
                 if field.preparer is not None:
                     value = field.preparer(value)
             except Invalid as e:
+                value = field.missing
                 errors.append(e)
 
             data[field.name[self.lprefix:]] = value
@@ -159,3 +165,29 @@ class FieldsetErrors(list):
             r[err.field.name] = text_type(err)
 
         return r
+
+    def add_field_error(self, name, err):
+        """
+        Add error to specific field. Set error `field` to specified field.
+        """
+        if isinstance(err, string_types):
+            err = Invalid(err)
+
+        field = self.fieldset[name]
+
+        err.field = field
+        if field.error is None:
+            field.error = err
+
+        self.append(err)
+
+    def __contains__(self, name):
+        """
+        Check if there is error for field
+        """
+        if isinstance(name, Invalid):
+            return super(FieldsetErrors, self).__contains__(name)
+
+        for err in self:
+            if err.field and err.field.name == name:
+                return True
