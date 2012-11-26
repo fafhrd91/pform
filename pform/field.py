@@ -51,6 +51,7 @@ class Field(object):
     default = null
     missing = required
     required = None
+    empty = null
 
     error = None
     error_msg = ''
@@ -163,7 +164,10 @@ class Field(object):
     def extract(self):
         """ extract value from params """
         if self.suffix is None:
-            return self.params.get(self.name, null)
+            val = self.params.get(self.name, null)
+            if val == self.empty:
+                return null
+            return val
 
         data = {}
         for s in self.suffix:

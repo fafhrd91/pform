@@ -152,6 +152,7 @@ class TextField(InputField):
 
     klass = 'text-widget'
     value = ''
+    empty = ''
 
 
 class Number(object):
@@ -178,7 +179,7 @@ class Number(object):
 
 
 @field('int')
-class IntegerField(Number, InputField):
+class IntegerField(Number, TextField):
     """Integer input widget. Field name is ``int``."""
 
     typ = int
@@ -187,7 +188,7 @@ class IntegerField(Number, InputField):
 
 
 @field('float')
-class FloatField(Number, InputField):
+class FloatField(Number, TextField):
     """Float input widget. Field name is ``float``."""
 
     typ = float
@@ -195,7 +196,7 @@ class FloatField(Number, InputField):
 
 
 @field('decimal')
-class DecimalField(Number, InputField):
+class DecimalField(Number, TextField):
     """Decimal input widget. Field name is ``decimal``."""
 
     typ = decimal.Decimal
@@ -217,7 +218,7 @@ class TextAreaField(TextField):
 
 
 @field('file')
-class FileField(TextField):
+class FileField(InputField):
     """HTML File input widget. Field name is ``file``."""
 
     klass = 'input-file'
