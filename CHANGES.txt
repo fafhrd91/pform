@@ -18,6 +18,8 @@ CHANGES
 
 - Added `pform.button2` decorator, `extract` parameter is true
 
+- Added `max_size` and `allowed_types` parameters to FileField
+
 - Do not update widget's custom tmpl_widget
 
 

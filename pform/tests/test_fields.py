@@ -1,6 +1,6 @@
 import decimal
 from webob.multidict import MultiDict
-from pyramid.compat import text_type
+from pyramid.compat import text_type, NativeIO
 
 import pform
 from pform import iso8601
@@ -652,7 +652,7 @@ class TestFileField(BaseTestCase):
                 self.type = mt
                 self.length = s
 
-        fs = FileStorage(object(), 'test.jpg', 'image/jpeg', 1024)
+        fs = FileStorage(NativeIO(), 'test.jpg', 'image/jpeg', 1024)
 
         field = field.bind(request, '', 'content', {'test': fs})
         field.update()
@@ -681,3 +681,31 @@ class TestFileField(BaseTestCase):
         res = field.extract()
         self.assertIs(type(res), dict)
         self.assertEqual(res['filename'], 'test.jpg')
+
+    def test_validate_allowed_types(self):
+        request = self.make_request()
+
+        field = self._makeOne('test', allowed_types=('image/jpg',))
+        field = field.bind(request, '', 'content', {})
+
+        value = {'mimetype': 'image/png'}
+
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate(value)
+
+        self.assertEqual('Unknown file type.', cm.exception.msg)
+
+    def test_validate_max_size(self):
+        request = self.make_request()
+
+        field = self._makeOne('test', max_size=1)
+        field = field.bind(request, '', 'content', {})
+
+        value = {'mimetype': 'image/png'}
+
+        fp = NativeIO('          ')
+
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate({'fp': fp})
+
+        self.assertEqual('Maximum file size exceeded.', cm.exception.msg)

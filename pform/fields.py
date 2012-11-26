@@ -224,10 +224,31 @@ class FileField(InputField):
     klass = 'input-file'
     html_type = 'file'
 
+    max_size = 0
+    allowed_types = ()
+
+    error_max_size = "Maximum file size exceeded."
+    error_unknown_type = "Unknown file type."
+
+    def validate(self, value):
+        super(FileField, self).validate(value)
+
+        if self.max_size:
+            value['fp'].seek(0, 2)
+            size = value['fp'].tell()
+            value['fp'].seek(0)
+
+            if size > self.max_size:
+                raise Invalid(self.error_max_size, self)
+
+        if self.allowed_types and value['mimetype'] not in self.allowed_types:
+            raise Invalid(self.error_unknown_type, self)
+
     def extract(self):
         value = self.params.get(self.name, null)
 
         if hasattr(value, 'file'):
+            value.file.seek(0)
             return {
                 'fp': value.file,
                 'filename': value.filename,
