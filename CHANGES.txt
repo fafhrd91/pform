@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-0.3 (Unreleased)
+0.3 (11-27-2012)
 ================
 
 - Allow to add `str` as error in `Form.validate` method

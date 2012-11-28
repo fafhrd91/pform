@@ -12,9 +12,6 @@ install_requires = ['setuptools',
                     'pytz',
                     ]
 
-if sys.version_info[:2] in ((2,7),):
-    install_requires.extend(('simplejson',))
-
 tests_require = install_requires + ['nose', 'mock']
 
 
