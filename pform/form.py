@@ -132,7 +132,6 @@ class FormViewMapper(DefaultViewMapper):
             inst = _view(context, request)
             request.__original_view__ = inst
 
-            # update form
             try:
                 result = inst.update_form()
                 if result is None:

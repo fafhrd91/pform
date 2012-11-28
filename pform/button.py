@@ -34,18 +34,20 @@ class Button(object):
 
     template = 'form:submit'
 
-    def __init__(self, name='submit', title=None, action=None, action_name=None,
+    def __init__(self, name='submit', value=None, title=None,
+                 action=None, action_name=None,
                  actype=AC_DEFAULT, condition=None, extract=False, **kw):
         self.__dict__.update(kw)
 
-        if title is None:
-            title = name.capitalize()
+        if value is None:
+            value = name.capitalize()
 
         if isinstance(name, bytes):
             name = name.decode('utf-8')
         name = re.sub('\s', '_', name)
 
         self.name = name
+        self.value = value
         self.title = title
         self.action = action
         self.action_name = action_name
@@ -55,7 +57,7 @@ class Button(object):
 
     def __repr__(self):
         return '<{0} "{1}" : "{2}">'.format(
-            self.__class__.__name__, self.name, self.title)
+            self.__class__.__name__, self.name, self.value)
 
     def __call__(self, context):
         args = []
@@ -117,12 +119,12 @@ class Buttons(OrderedDict):
 
             self[btn.name] = btn
 
-    def add_action(self, title, **kwargs):
+    def add_action(self, value, **kwargs):
         """Add action to this manager."""
-        # Add the title to button constructor keyword arguments
-        kwargs['title'] = title
+        # Add the value to button constructor keyword arguments
+        kwargs['value'] = value
         if 'name' not in kwargs:
-            kwargs['name'] = create_btn_id(title)
+            kwargs['name'] = create_btn_id(value)
 
         button = Button(**kwargs)
 
@@ -183,7 +185,7 @@ def create_btn_id(name):
     return binascii.hexlify(name.encode('utf-8'))
 
 
-def _button(f_locals, title, kwargs):
+def _button(f_locals, value, kwargs):
     # install buttons manager
     buttons = f_locals.get('buttons')
     if buttons is None:
@@ -191,7 +193,7 @@ def _button(f_locals, title, kwargs):
         f_locals['buttons'] = buttons
 
     # create button
-    btn = buttons.add_action(title, **kwargs)
+    btn = buttons.add_action(value, **kwargs)
 
     def createHandler(func):
         btn.action_name = func.__name__
@@ -200,10 +202,10 @@ def _button(f_locals, title, kwargs):
     return createHandler
 
 
-def button(title, **kwargs):
+def button(value, **kwargs):
     """ Register new form button.
 
-    :param title: Button title. it is beeing used for html form generations.
+    :param value: Button value. it is beeing used for html form generations.
     :param kwargs: Keyword arguments
 
     .. code-block:: python
@@ -216,13 +218,13 @@ def button(title, **kwargs):
           def handle_cancel(self):
               ...
     """
-    return _button(sys._getframe(1).f_locals, title, kwargs)
+    return _button(sys._getframe(1).f_locals, value, kwargs)
 
 
-def button2(title, **kwargs):
+def button2(value, **kwargs):
     """ Register new form button.
 
-    :param title: Button title. it is beeing used for html form generations.
+    :param value: Button value. it is beeing used for html form generations.
     :param kwargs: Keyword arguments
 
     .. code-block:: python
@@ -236,4 +238,4 @@ def button2(title, **kwargs):
               ...
     """
     kwargs['extract'] = True
-    return _button(sys._getframe(1).f_locals, title, kwargs)
+    return _button(sys._getframe(1).f_locals, value, kwargs)

@@ -10,7 +10,8 @@ class TestButton(BaseTestCase):
                           actype = pform.AC_PRIMARY)
 
         self.assertEqual(btn.name, 'test')
-        self.assertEqual(btn.title, 'Test')
+        self.assertEqual(btn.value, 'Test')
+        self.assertIsNone(btn.title)
         self.assertEqual(btn.actype, pform.AC_PRIMARY)
         self.assertEqual(repr(btn), '<Button "test" : "Test">')
 
@@ -53,7 +54,7 @@ class TestButton(BaseTestCase):
         import pform
 
         btn = pform.Button(name='test', action_name='action',
-                          actype = pform.AC_PRIMARY)
+                           title='Title', actype = pform.AC_PRIMARY)
         params = {}
         context = object()
         request = self.request
@@ -61,7 +62,7 @@ class TestButton(BaseTestCase):
         widget = btn.bind('test.', params, context, request)
         self.assertEqual(
             strip(widget.render().strip()),
-            '<input type="submit" id="test-test" name="test.test" value="Test" readonly="False" disable="False" class="btn btn-primary">')
+            '<input type="submit" id="test-test" name="test.test" value="Test" readonly="False" disable="False" title="Title" class="btn btn-primary">')
 
     def test_execute(self):
         import pform
@@ -187,14 +188,15 @@ class TestButtonDecorator(TestCase):
         import pform
 
         class MyForm(object):
-            @pform.button('Test button')
+            @pform.button('Test button', title='Test button title')
             def handler(self):
                 """ """
 
         self.assertEqual(len(MyForm.buttons), 1)
 
         btn = list(MyForm.buttons.values())[0]
-        self.assertEqual(btn.title, 'Test button')
+        self.assertEqual(btn.value, 'Test button')
+        self.assertEqual(btn.title, 'Test button title')
         self.assertEqual(btn.action_name, 'handler')
         self.assertFalse(btn.extract)
 
@@ -202,14 +204,15 @@ class TestButtonDecorator(TestCase):
         import pform
 
         class MyForm(object):
-            @pform.button2('Test button')
+            @pform.button2('Test button', title='Test button title')
             def handler(self):
                 """ """
 
         self.assertEqual(len(MyForm.buttons), 1)
 
         btn = list(MyForm.buttons.values())[0]
-        self.assertEqual(btn.title, 'Test button')
+        self.assertEqual(btn.value, 'Test button')
+        self.assertEqual(btn.title, 'Test button title')
         self.assertEqual(btn.action_name, 'handler')
         self.assertTrue(btn.extract)
 

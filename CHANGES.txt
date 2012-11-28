@@ -7,6 +7,8 @@ CHANGES
 
 - Allow to add `str` as error in `Form.validate` method
 
+- Better button handling
+
 - Better tanslations for `Invalid` messages
 
 - Changed arguments order for `Invalid` class contrustor 
@@ -20,7 +22,7 @@ CHANGES
 
 - Added `max_size` and `allowed_types` parameters to FileField
 
-- Do not update widget's custom tmpl_widget
+- Do not override widget's custom tmpl_widget
 
 
 0.2 (11-13-2012)
