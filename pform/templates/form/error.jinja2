@@ -9,7 +9,7 @@
   <h4 class="alert-heading">Please fix indicated errors.</h4>
   <ul>
     {% for err in errors %}
-      <li>{{err.msg|safe}}</li>
+      <li>{{err|safe}}</li>
     {% endfor %}
   </ul>
 </div>

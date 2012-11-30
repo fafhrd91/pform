@@ -20,7 +20,8 @@ from pform.interfaces import HTTPResponseIsReady
 def form_error_message(context, request):
     """ form error renderer """
     errors = [err for err in context
-              if isinstance(err, Invalid) and err.field is None]
+              if (isinstance(err, str) or
+                  (isinstance(err, Invalid) and err.field is None))]
 
     return {'errors': errors}
 

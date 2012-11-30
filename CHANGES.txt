@@ -2,6 +2,9 @@
 CHANGES
 =======
 
+- Render str in `form:error` message
+
+
 0.3 (11-27-2012)
 ================
 

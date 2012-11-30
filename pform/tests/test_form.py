@@ -62,6 +62,26 @@ class TestFormErrors(BaseTestCase):
         res = request.render_messages()
         self.assertIn('Please fix indicated errors.', res)
 
+    def test_form_errors_str(self):
+        from pform import Invalid, TextField
+        from pform.form import form_error_message
+        request = self.make_request()
+
+        err1 = 'Error1'
+        err2 = Invalid('Error2')
+        err2.field = TextField('text')
+
+        msg = [err1, err2]
+
+        errs = form_error_message(msg, request)['errors']
+        self.assertIn(err1, errs)
+        self.assertNotIn(err2, errs)
+
+        request.add_message(msg, 'form:error')
+        res = request.render_messages()
+        self.assertIn('Error1', res)
+        self.assertIn('Please fix indicated errors.', res)
+
     def test_add_error_message(self):
         import pform
 
