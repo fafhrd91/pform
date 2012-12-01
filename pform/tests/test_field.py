@@ -85,24 +85,18 @@ class TestField(BaseTestCase):
 
         self.assertRaises(pform.Invalid, field.validate, '')
 
-    def test_field_extract_missing(self):
+    def test_field_validate_missing(self):
         field = pform.Field('test')
         field.missing = ''
 
-        widget = field.bind(
-            object, 'field.', pform.null, {'field.test':''})
-        self.assertIs(widget.extract(), widget.missing)
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate('')
+        self.assertEqual(field.error_required, cm.exception.msg)
 
-        widget = field.bind(
-            object, 'field.', pform.null, {'field.test':''})
-        widget.missing = 'test'
-        self.assertEqual('', widget.extract())
-
-        widget = field.bind(
-            object, 'field.', pform.null, {'field.test':'test'})
-        widget.missing = 'test'
-
-        self.assertIs(widget.missing, widget.extract())
+        field.missing = 'test'
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate('test')
+        self.assertEqual(field.error_required, cm.exception.msg)
 
     def test_field_extract(self):
         field = pform.Field('test')

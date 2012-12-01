@@ -108,19 +108,15 @@ class Field(object):
 
         # extract from request
         widget_value = self.extract()
-        if widget_value is not null and widget_value != self.missing:
+        if widget_value is not null:
             self.form_value = widget_value
             return
 
         # get from value
         if self.value is null:
-            value = self.missing
+            value = self.default
         else:
             value = self.value
-
-        # use default
-        if value is null:
-            value = self.default
 
         # Convert the value to one that the widget can understand
         if value is not null:
@@ -160,7 +156,7 @@ class Field(object):
 
     def extract(self):
         """ extract value from params """
-        return self.params.get(self.name, self.missing)
+        return self.params.get(self.name, null)
 
     def render(self):
         """ render field """
