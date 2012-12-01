@@ -86,23 +86,6 @@ class _null(object):
 null = _null()
 
 
-class _required(object):
-    """ Represents a required value in field-related operations. """
-
-    def __len__(self):
-        return 0
-
-    def __nonzero__(self):
-        return False
-
-    __bool__ = __nonzero__
-
-    def __repr__(self):
-        return '<widget.required>'
-
-required = _required()
-
-
 class HTTPResponseIsReady(Exception):
     """ An exception raised by form update method indicates
     form should return http response """

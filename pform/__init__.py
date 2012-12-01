@@ -1,11 +1,17 @@
 # pform public api
 
 __all__ = [
-    'null','required','Invalid','Field','FieldFactory',
-    'Fieldset','FieldsetErrors','field','fieldpreview','get_field_factory',
-    'get_field_preview','SimpleTerm','SimpleVocabulary',
-    'FORM_INPUT','FORM_DISPLAY','All','Function','Regex','Email','Range',
-    'Length','OneOf','InputField','TextField','IntegerField','FloatField',
+    'null', 'Invalid', 'FieldsetErrors',
+    'Field', 'FieldFactory', 'Fieldset', 'FORM_INPUT','FORM_DISPLAY',
+    'field', 'fieldpreview', 'get_field_factory', 'get_field_preview',
+
+    'SimpleTerm','SimpleVocabulary',
+
+    'All','Function','Regex','Email','Range', 'Length','OneOf',
+
+    'InputField', 'CompositeField',
+
+    'TextField','IntegerField','FloatField',
     'DecimalField','TextAreaField','FileField','LinesField','PasswordField',
     'DateField','DateTimeField','RadioField','BoolField','ChoiceField',
     'MultiChoiceField','MultiSelectField','TimezoneField','VocabularyField',
@@ -18,7 +24,6 @@ from pyramid.decorator import reify
 
 # validation
 from pform.interfaces import null
-from pform.interfaces import required
 from pform.interfaces import Invalid
 
 # field
@@ -52,7 +57,8 @@ from pform.validator import Length
 from pform.validator import OneOf
 
 # helper class
-from pform.fields import InputField
+from pform.field import InputField
+from pform.composite import CompositeField
 
 # fields
 from pform.fields import TextField

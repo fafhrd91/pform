@@ -1,0 +1,10 @@
+{% for field in context.fields.values() %}
+{% set error = field.error %}
+<div {{{'class': 'error' if error else None}|xmlattr}}>
+  {{field.render()|safe}}
+  {% if error %}
+    <span class="help-inline">{{error|safe}}</span>
+  {% endif %}
+  <span class="help-block">{{field.description|safe}}</span>
+</div>
+{% endfor %}

@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-version = '0.3'
+version = '0.4'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4a4',
@@ -21,7 +21,7 @@ def read(f):
 
 setup(name='pform',
       version=version,
-      description=('Form generation library for pyramid'),
+      description=('Form generation library for Pyramid framework'),
       long_description='\n\n'.join((read('README.rst'), read('CHANGES.txt'))),
       classifiers=[
           "Intended Audience :: Developers",

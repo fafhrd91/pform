@@ -52,7 +52,7 @@ class FormWidgets(OrderedDict):
         fieldsets = self.fieldsets = []
 
         self.fieldset = self.form_fields.bind(
-            self.request, content, params, form.context)
+            self.request, content, params, prefix, form.context)
 
         # Walk through each field, making a widget out of it.
         for fieldset in self.fieldset.fieldsets():
@@ -64,7 +64,6 @@ class FormWidgets(OrderedDict):
                 if widget.tmpl_widget is None:
                     widget.tmpl_widget = form.tmpl_widget
 
-                widget.id = ('%s%s' % (prefix, widget.name)).replace('.', '-')
                 widget.update()
                 widgets.append(widget)
                 self[widget.name] = widget

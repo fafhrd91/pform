@@ -398,7 +398,7 @@ class TestChoiceField(BaseTestCase):
                            'name': 'test',
                            'value': 'two'}])
 
-        field = self._makeOne('test', missing=2, vocabulary=voc)
+        field = self._makeOne('test', missing=2, required=False, vocabulary=voc)
         field = field.bind(request, '', 1, {})
         field.id = 'test'
         field.update()
@@ -525,7 +525,7 @@ class TestDateTime(BaseTestCase):
         result = typ.to_field(pform.null)
         self.assertEqual(result, pform.null)
 
-    def test_to_field_empty(self):
+    def test_to_field_missing(self):
         typ = self._makeOne()
         result = typ.to_field('')
         self.assertEqual(result, pform.null)
@@ -609,7 +609,7 @@ class TestDate(BaseTestCase):
         result = typ.to_field(pform.null)
         self.assertEqual(result, pform.null)
 
-    def test_to_field_empty(self):
+    def test_to_field_missing(self):
         typ = self._makeOne()
         result = typ.to_field('')
         self.assertEqual(result, pform.null)

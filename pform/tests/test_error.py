@@ -85,13 +85,3 @@ class TestNull(TestCase):
         self.assertFalse(pform.null)
         self.assertFalse(len(pform.null))
         self.assertEqual(repr(pform.null), '<widget.null>')
-
-
-class TestRequired(TestCase):
-
-    def test_required(self):
-        import pform
-
-        self.assertFalse(pform.required)
-        self.assertFalse(len(pform.required))
-        self.assertEqual(repr(pform.required), '<widget.required>')

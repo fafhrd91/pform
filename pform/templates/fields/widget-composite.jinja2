@@ -1,0 +1,21 @@
+<div class="control-group">
+  <label class="control-label">{{context.title|safe}}</label>
+  <div class="clearfix"></div>
+
+  {% for field in context.fields.values() %}
+  {% set error = field.error %}
+  <div class="{{'control-group error' if error else ''}}">
+    <label class="control-label" style="font-size:75%"
+           for="{{field.id}}" title="{{field.description}}">
+           {{field.title|safe}} {% if field.required %}*{% endif %}
+    </label>
+    <div class="controls">
+      {{field.render()|safe}}
+      {% if error %}
+        <span class="help-inline">{{error|safe}}</span>
+      {% endif %}
+      <p class="help-block">{{context.description|safe}}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>

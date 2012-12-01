@@ -257,9 +257,6 @@ class TestFieldsetErrors(BaseTestCase):
         self.assertEqual(repr(err1), "Invalid(<TextField 'test'>: <error1>)")
         self.assertEqual(str(pform.null), '<widget.null>')
 
-        self.assertFalse(bool(pform.required))
-        self.assertEqual(repr(pform.required), '<widget.required>')
-
     def test_fieldset_contains_by_fieldname(self):
         f = field.bind(self.request,'','',{})
         f.name = 'field'

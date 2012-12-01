@@ -2,6 +2,11 @@
 CHANGES
 =======
 
+0.4 (Unreleased)
+================
+
+- Added `Composite` field
+
 - Render str in `form:error` message
 
 

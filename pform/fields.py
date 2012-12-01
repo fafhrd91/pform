@@ -152,7 +152,7 @@ class TextField(InputField):
 
     klass = 'text-widget'
     value = ''
-    empty = ''
+    missing = ''
 
 
 class Number(object):

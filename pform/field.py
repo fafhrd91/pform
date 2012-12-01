@@ -1,7 +1,7 @@
 import logging
 from collections import OrderedDict
 from player import render
-from pform.interfaces import _, null, required
+from pform.interfaces import _, null
 from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
 
 log = logging.getLogger('pform')
@@ -49,9 +49,8 @@ class Field(object):
     description = ''
 
     default = null
-    missing = required
-    required = None
-    empty = null
+    required = True
+    missing = null
 
     error = None
     error_msg = ''
@@ -64,8 +63,6 @@ class Field(object):
     value = null
     form_value = None
     context = None
-
-    suffix = None
 
     id = None
     klass = None
@@ -83,11 +80,8 @@ class Field(object):
         self.description = kw.get('description', '')
         self.readonly = kw.get('readonly', None)
         self.default = kw.get('default', self.default)
-        self.missing = kw.get('missing', self.missing)
         self.preparer = kw.get('preparer', None)
         self.validator = kw.get('validator', None)
-        if self.required is None:
-            self.required = self.missing is required
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
@@ -101,6 +95,9 @@ class Field(object):
         clone.context = context
         return clone
 
+    def set_id_prefix(self, prefix):
+        self.id = ('%s%s'%(prefix, self.name)).replace('.', '-')
+
     def update(self):
         """ Update field, prepare field for rendering """
         if self.mode is None:
@@ -111,14 +108,14 @@ class Field(object):
 
         # extract from request
         widget_value = self.extract()
-        if widget_value is not null:
+        if widget_value is not null and widget_value != self.missing:
             self.form_value = widget_value
             return
 
-        value = null
-
         # get from value
-        if self.value is not null:
+        if self.value is null:
+            value = self.missing
+        else:
             value = self.value
 
         # use default
@@ -155,7 +152,7 @@ class Field(object):
         if self.typ is not None and not isinstance(value, self.typ):
             raise Invalid(self.error_wrong_type, self)
 
-        if value is required:
+        if self.required and value == self.missing:
             raise Invalid(self.error_required, self)
 
         if self.validator is not None:
@@ -163,19 +160,7 @@ class Field(object):
 
     def extract(self):
         """ extract value from params """
-        if self.suffix is None:
-            val = self.params.get(self.name, null)
-            if val == self.empty:
-                return null
-            return val
-
-        data = {}
-        for s in self.suffix:
-            data[s] = self.params.get('%s-%s'%(self.name, s), null)
-            if data[s] is null:
-                return null
-
-        return data
+        return self.params.get(self.name, self.missing)
 
     def render(self):
         """ render field """
