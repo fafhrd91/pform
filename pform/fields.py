@@ -160,16 +160,13 @@ class Number(object):
     error_msg = _('"${val}" is not a number')
 
     def to_form(self, value):
-        if value is null:
-            return null
-
         try:
             return str(self.typ(value))
         except Exception:
             raise Invalid(self.error_msg, self)
 
     def to_field(self, value):
-        if value != 0 and not value:
+        if not value:
             return null
 
         try:

@@ -65,7 +65,6 @@ class Field(object):
     context = None
 
     id = None
-    klass = None
     typ = None
 
     tmpl_widget = None
