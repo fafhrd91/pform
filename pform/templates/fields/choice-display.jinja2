@@ -1,6 +1,0 @@
-<span id="{{context.id}}" class="{{context.klass}}"
-      title="{{context.title}}" {{{'lang': context.lang}|xmlattr}}>
-  {% if context.form_value %}
-    {{context.vocabulary.get_term_bytoken(context.form_value).title}}
-  {% endif %}
-</span>

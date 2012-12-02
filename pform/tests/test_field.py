@@ -67,6 +67,15 @@ class TestField(BaseTestCase):
         field = orig_field.bind(object(), 'field.', pform.null, {}, context)
         self.assertIs(field.context, context)
 
+    def test_field_cant_bind(self):
+        """
+        Can't bind already bound field
+        """
+        orig_field = pform.Field('test')
+        field = orig_field.bind(self.request, 'field.', pform.null, {})
+
+        self.assertRaises(TypeError, field.bind)
+
     def test_field_validate(self):
         field = pform.Field('test')
 
@@ -77,6 +86,20 @@ class TestField(BaseTestCase):
             raise pform.Invalid('msg', field)
 
         field = pform.Field('test', validator=validator)
+        self.assertRaises(pform.Invalid, field.validate, '')
+
+    def test_field_validate_bound_field(self):
+        orig = pform.Field('test')
+        field = orig.bind(self.request, 'field.', pform.null, {})
+
+        self.assertIsNone(field.validate(''))
+        self.assertRaises(pform.Invalid, field.validate, field.missing)
+
+        def validator(field, value):
+            raise pform.Invalid('msg', field)
+
+        orig = pform.Field('test', validator=validator)
+        field = orig.bind(self.request, 'field.', pform.null, {})
         self.assertRaises(pform.Invalid, field.validate, '')
 
     def test_field_validate_type(self):
@@ -107,26 +130,6 @@ class TestField(BaseTestCase):
 
         widget = field.bind(object, 'field.', pform.null, {'field.test':'TEST'})
         self.assertIs(widget.extract(), 'TEST')
-
-    def test_field_update_mode(self):
-        request = object()
-        field = pform.Field('test')
-        widget = field.bind(request, 'field.', pform.null, {})
-
-        widget.update()
-        self.assertEqual(widget.mode, pform.FORM_INPUT)
-
-        field = pform.Field('test', readonly=True)
-        widget = field.bind(request, 'field.', pform.null, {})
-
-        widget.update()
-        self.assertEqual(widget.mode, pform.FORM_DISPLAY)
-
-        field = pform.Field('test', mode=pform.FORM_DISPLAY)
-        widget = field.bind(request, 'field.', pform.null, {})
-
-        widget.update()
-        self.assertEqual(widget.mode, pform.FORM_DISPLAY)
 
     def test_field_update_value(self):
         class MyField(pform.Field):

@@ -4,7 +4,7 @@ from pyramid.compat import text_type, string_types
 
 from pform.field import Field
 from pform.validator import All
-from pform.interfaces import null, Invalid, FORM_DISPLAY
+from pform.interfaces import null, Invalid
 
 
 class Fieldset(OrderedDict):
@@ -112,9 +112,6 @@ class Fieldset(OrderedDict):
             errors.extend(ferrors)
 
         for field in self.fields():
-            if field.mode == FORM_DISPLAY:
-                continue
-
             value = field.extract()
 
             if value is not null:

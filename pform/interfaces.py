@@ -6,9 +6,6 @@ from translationstring import TranslationStringFactory
 
 MessageFactory = _ = TranslationStringFactory('pform')
 
-FORM_INPUT = 'form-input'
-FORM_DISPLAY = 'form-display'
-
 
 class Invalid(Exception):
     """An exception raised by data types and validators indicating that

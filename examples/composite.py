@@ -18,7 +18,7 @@ with open(os.path.join(os.path.split(__file__)[0], 'countries.txt'), 'r') as f:
 
 class AddressField(pform.CompositeField):
 
-    label = 'Address'
+    title = 'Address'
 
     fields = (
         pform.TextField(

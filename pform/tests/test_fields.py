@@ -59,11 +59,6 @@ class TestTextField(BaseTestCase):
             '<input type="text" class="text-widget" value="content" id="test" name="test" title="Test">',
             strip(res))
 
-        field.mode = pform.FORM_DISPLAY
-
-        res = field.render()
-        self.assertIn('<span class="uneditable-input"', strip(res))
-
         field = self._makeOne('test')
         field = field.bind(request, '', 'content', {'test': 'form'})
         field.update()
@@ -72,10 +67,6 @@ class TestTextField(BaseTestCase):
         self.assertIn(
             '<input type="text" class="text-widget" value="form" id="test" name="test" title="Test">',
             strip(res))
-
-        field.mode = pform.FORM_DISPLAY
-        res = field.render()
-        self.assertIn('<span class="uneditable-input"', strip(res))
 
 
 class TestIntegerField(BaseTestCase):
@@ -90,7 +81,6 @@ class TestIntegerField(BaseTestCase):
         field = field.bind(request, '', 10, {})
         field.update()
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form(10), '10')
         self.assertRaises(pform.Invalid, field.to_form, 'value')
 
@@ -116,7 +106,6 @@ class TestFloatField(BaseTestCase):
         field = field.bind(request, '', 10.34, {})
         field.update()
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form(10.34), '10.34')
         self.assertRaises(pform.Invalid, field.to_form, 'value')
 
@@ -142,7 +131,6 @@ class TestDeciamlField(BaseTestCase):
         field = field.bind(request, '', decimal.Decimal('10.34'), {})
         field.update()
 
-        self.assertIs(field.to_form(pform.null), pform.null)
         self.assertEqual(field.to_form(decimal.Decimal('10.34')), '10.34')
         self.assertRaises(pform.Invalid, field.to_form, 'value')
 
@@ -654,6 +642,7 @@ class TestFileField(BaseTestCase):
 
         fs = FileStorage(NativeIO(), 'test.jpg', 'image/jpeg', 1024)
 
+        field = self._makeOne('test')
         field = field.bind(request, '', 'content', {'test': fs})
         field.update()
 
@@ -675,6 +664,7 @@ class TestFileField(BaseTestCase):
             'test-filename': 'test.jpg',
             'test-mimetype': 'image/jpeg'}
 
+        field = self._makeOne('test')
         field = field.bind(request, '', 'content', params)
         field.update()
 

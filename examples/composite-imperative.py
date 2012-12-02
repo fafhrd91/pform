@@ -18,41 +18,41 @@ with open(os.path.join(os.path.split(__file__)[0], 'countries.txt'), 'r') as f:
 @view_config(route_name='root', renderer='__main__:simple.jinja2')
 def my_form_view(request):
     # form
-    form = pform.Form(None, request)
+    form = pform.Form(
+        None, request,
 
-    # form fields
-    form.fields = pform.Fieldset(
+        fields = pform.Fieldset(
+            pform.TextField(
+                'name', title = u'Name'),  # field title
 
-        pform.TextField(
-            'name', title = u'Name'),  # field title
+            pform.TextField(
+                'email',
+                title = u'E-Mail',
+                description = u'Please provide email address.',
+                validator = pform.Email(), # email validator
+            ),
 
-        pform.TextField(
-            'email',
-            title = u'E-Mail',
-            description = u'Please provide email address.',
-            validator = pform.Email(), # email validator
-        ),
-
-        pform.CompositeField(
-            'address',
-            title = 'Address',
-            fields = (
-                pform.TextField(
-                    'street', title='Street', missing=''),
-                pform.TextField(
-                    'street1', title='', required=False),
-                pform.ChoiceField(
-                    'country',
-                    default = 'US',
-                    title='Country', vocabulary=countries),
-                pform.TextField(
-                    'city',
-                    title='City'),
-                pform.TextField(
-                    'state',
-                    title='State', required=True),
-                pform.TextField(
-                    'zip', title='Zip', required=True)
+            pform.CompositeField(
+                'address',
+                title = 'Address',
+                fields = (
+                    pform.TextField(
+                        'street', title='Street', missing=''),
+                    pform.TextField(
+                        'street1', title='', required=False),
+                    pform.ChoiceField(
+                        'country',
+                        default = 'US',
+                        title='Country', vocabulary=countries),
+                    pform.TextField(
+                        'city',
+                        title='City'),
+                    pform.TextField(
+                        'state',
+                        title='State', required=True),
+                    pform.TextField(
+                        'zip', title='Zip', required=True)
+                )
             )
         )
     )

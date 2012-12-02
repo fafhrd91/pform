@@ -1,10 +1,18 @@
 import logging
 from collections import OrderedDict
 from player import render
-from pform.interfaces import _, null
-from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
+from pform.interfaces import _, null, Invalid
 
 log = logging.getLogger('pform')
+
+
+class _FieldBase(object):
+
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
+
+    def bind(self, *args, **kw):
+        raise TypeError("Can not bind already bound field.")
 
 
 class Field(object):
@@ -20,6 +28,9 @@ class Field(object):
     ``description``: The description for this field.  Defaults to
       ``''`` (the empty string).  The description is used by form.
 
+    ``required``: This value indicates if field is required. By default
+      field is required.
+
     ``validator``: Optional validator for this field.  It should be
       an object that implements the
       :py:class:`pform.interfaces.Validator` interface.
@@ -32,13 +43,9 @@ class Field(object):
 
     ``error_msg``:: Custom error message.
 
-    ``tmpl_widget``: The path to widget template.
+    ``tmpl_input``: Pyramid renderer path.
 
-    ``tmpl_input``: The path to input widget template. It should be
-      compatible with pyramid renderers.
-
-    ``tmpl_display``: The path to display widget template. It should be
-      compatible with pyramid renderers.
+    ``tmpl_widget``: Widget renderer.
 
     """
 
@@ -59,7 +66,6 @@ class Field(object):
 
     request = None
     params = {}
-    mode = None
     value = null
     form_value = None
     context = None
@@ -67,9 +73,9 @@ class Field(object):
     id = None
     typ = None
 
-    tmpl_widget = None
     tmpl_input = None
-    tmpl_display = None
+    tmpl_widget = None
+
 
     def __init__(self, name, **kw):
         self.__dict__.update(kw)
@@ -82,29 +88,32 @@ class Field(object):
         self.preparer = kw.get('preparer', None)
         self.validator = kw.get('validator', None)
 
+        self.cls = type(self.__class__.__name__,
+                        (_FieldBase, self.__class__), self.__dict__)
+
+        if 'preparer' in kw:
+            self.cls.preparer = staticmethod(kw['preparer'])
+
+        if 'validator' in kw:
+            self.cls.validator = staticmethod(kw['validator'])
+
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
-        clone = self.__class__.__new__(self.__class__)
-        clone.__dict__.update(self.__dict__)
-        clone.request = request
-        clone.value = value
-        clone.params = params
-        clone.name = '%s%s' % (prefix, self.name)
-        clone.id = clone.name.replace('.', '-')
-        clone.context = context
-        return clone
+        name = '%s%s' % (prefix, self.name)
+
+        return self.cls(
+            name = name,
+            id = name.replace('.', '-'),
+            value = value,
+            params = params,
+            request = request,
+            context = context)
 
     def set_id_prefix(self, prefix):
         self.id = ('%s%s'%(prefix, self.name)).replace('.', '-')
 
     def update(self):
         """ Update field, prepare field for rendering """
-        if self.mode is None:
-            if self.readonly:
-                self.mode = FORM_DISPLAY
-            else:
-                self.mode = FORM_INPUT
-
         # extract from request
         widget_value = self.extract()
         if widget_value is not null:
@@ -159,12 +168,7 @@ class Field(object):
 
     def render(self):
         """ render field """
-        if self.mode == FORM_DISPLAY:
-            tmpl = self.tmpl_display
-        else:
-            tmpl = self.tmpl_input
-
-        return render(self.request, tmpl, self,
+        return render(self.request, self.tmpl_input, self,
                       view=self, value=self.form_value)
 
     def render_widget(self):
@@ -178,6 +182,8 @@ class Field(object):
 
 
 class InputField(Field):
+
+    klass = None
 
     html_type = 'text'
     html_attrs = ('id', 'name', 'title', 'lang', 'disabled', 'tabindex',

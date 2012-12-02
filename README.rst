@@ -91,6 +91,30 @@ To get form values use `extract` method, this method return
            ...
 
 
+Customization
+-------------
+
+There are two ways for field and form customization::
+
+1. Global customization 
+
+  `pform` library uses `player`::https://github.com/fafhrd91/pform/tree/master/examples library for customization. `pform` libriary defines two `layer category`
+`form` for all templates related to form generation (form, actions, errors) and
+`fields` for all templates related to field and widget generation.
+
+2. Field/form customization
+
+  Also it is possible to customize widget of input template for each field.
+You can pass ``tmpl_widget`` argument to to field constructor for widget
+customization and ``tmpl_input`` argument for input generation. Both arguments
+should be valid pyramid renderer path.
+  Form accepts three different templates, ``tmpl_view``, ``tmpl_actions`` and 
+``tmpl_widget``. ``tmpl_view`` is form renderer, ``tmpl_actions`` if form 
+buttons renderer, ``tmpl_widget`` is custom field widget renderer. If 
+field does not use custom ``tmpl_widget`` then form automatically sets
+``tmpl_widget`` for each of this fields.
+
+
 Examples
 --------
 

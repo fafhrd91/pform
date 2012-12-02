@@ -4,6 +4,7 @@ from pyramid.view import render_view_to_response
 from pyramid.testing import DummyRequest
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 
+import pform
 from base import BaseTestCase, TestCase
 
 
@@ -98,27 +99,62 @@ class TestFormErrors(BaseTestCase):
 
 class TestForm(BaseTestCase):
 
-    def test_basics(self):
-        from pform.form import Form
+    def test_ctor_kwargs(self):
+        """ Pass keyword arguments to Form ctor """
+        form = pform.Form(object(), DummyRequest(), title='Test Form')
+        self.assertEqual('Test Form', form.title)
 
+    def test_ctor_fields(self):
+        """ Form ctor converts sequence of fields to Fieldset """
+        form = pform.Form(
+            object(), DummyRequest(),
+            fields=(pform.TextField('firstname'),
+                    pform.TextField('lastname')))
+        self.assertIsInstance(form.fields, pform.Fieldset)
+
+    def test_ctor_sets_tmpl_widget(self):
+        """ Form ctor sets tmpl_widget to all fields """
+        form = pform.Form(
+            object(), DummyRequest(),
+            tmpl_widget='custom:widget',
+            fields=pform.Fieldset(
+                pform.TextField('firstname'),
+                pform.TextField('lastname',tmpl_widget='custom:widget2')))
+        self.assertEqual(
+            'custom:widget', form.fields['firstname'].cls.tmpl_widget)
+        self.assertEqual(
+            'custom:widget2', form.fields['lastname'].cls.tmpl_widget)
+
+    def test_ctor_sets_tmpl_widget_recursive(self):
+        """ Form ctor sets tmpl_widget to all fields in all fieldsets """
+        form = pform.Form(
+            object(), DummyRequest(),
+            tmpl_widget='custom:widget',
+            fields=pform.Fieldset(
+                pform.TextField('firstname'),
+                pform.Fieldset(pform.TextField('lastname'), name='sub')))
+        self.assertEqual(
+            'custom:widget', form.fields['firstname'].cls.tmpl_widget)
+        self.assertEqual(
+            'custom:widget', form.fields['sub']['lastname'].cls.tmpl_widget)
+
+    def test_basics(self):
         request = DummyRequest()
-        form = Form(None, request)
+        form = pform.Form(None, request)
 
         request.url = '/test/form'
         self.assertEqual(form.action, request.url)
 
         self.assertEqual(form.name, 'form')
 
-        form = Form(None, request)
+        form = pform.Form(None, request)
         form.prefix = 'my.test.form.'
         self.assertEqual(form.name, 'my.test.form')
         self.assertEqual(form.id, 'my-test-form')
 
     def test_form_content(self):
-        from pform.form import Form
-
         request = DummyRequest()
-        form = Form(None, request)
+        form = pform.Form(None, request)
 
         self.assertIsNone(form.form_content())
 
@@ -160,18 +196,15 @@ class TestForm(BaseTestCase):
         self.assertIsNone(form_ob.validate_csrf_token())
 
     def test_form_params_post(self):
-        from pform.form import Form, DisplayForm
+        from pform.form import Form
 
         form = Form(None, self.request)
-        disp_form = DisplayForm(None, self.request)
-
         self.assertEqual(form.method, 'post')
 
         post = {'post': 'info'}
         self.request.POST = post
 
         self.assertIs(form.form_params(), post)
-        self.assertIs(disp_form.form_params(), DisplayForm.params)
 
     def test_form_params_get(self):
         from pform.form import Form
@@ -213,15 +246,6 @@ class TestForm(BaseTestCase):
         self.assertEqual(list(form.form_params().keys()), ['post'])
         self.assertEqual(list(form.form_params().values()), ['info'])
 
-    def test_form_mode(self):
-        from pform.form import Form, DisplayForm, FORM_INPUT, FORM_DISPLAY
-
-        form = Form(None, self.request)
-        self.assertEqual(form.mode, FORM_INPUT)
-
-        form = DisplayForm(None, self.request)
-        self.assertEqual(form.mode, FORM_DISPLAY)
-
     def test_form_update_widgets(self):
         import pform
 
@@ -232,12 +256,8 @@ class TestForm(BaseTestCase):
         form_ob.update_form()
 
         self.assertIsInstance(form_ob.widgets, pform.FormWidgets)
-        self.assertEqual(form_ob.widgets.mode, form_ob.mode)
 
-        form_ob.mode = pform.FORM_DISPLAY
         form_ob.update_form()
-        self.assertEqual(form_ob.widgets.mode, pform.FORM_DISPLAY)
-
         self.assertEqual(len(form_ob.widgets), 0)
 
         form_ob.fields = pform.Fieldset(pform.TextField('test'))

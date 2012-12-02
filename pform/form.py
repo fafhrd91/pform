@@ -12,8 +12,7 @@ from player import layout, render, tmpl_filter, add_message
 from pform.field import Field
 from pform.fieldset import Fieldset
 from pform.button import Buttons, Actions
-from pform.interfaces import Invalid, FORM_INPUT, FORM_DISPLAY
-from pform.interfaces import HTTPResponseIsReady
+from pform.interfaces import Invalid, HTTPResponseIsReady
 
 
 @tmpl_filter('form:error')
@@ -30,16 +29,15 @@ class FormWidgets(OrderedDict):
     """ Form widgets manager.
     Widget is bound to content field. """
 
-    mode = FORM_INPUT
     prefix = 'widgets.'
     fieldsets = ()
 
     def __init__(self, fields, form, request):
+        super(FormWidgets, self).__init__()
+
         self.form_fields = fields
         self.form = form
         self.request = request
-
-        super(FormWidgets, self).__init__()
 
     def fields(self):
         return self.fieldset.fields()
@@ -59,11 +57,6 @@ class FormWidgets(OrderedDict):
             widgets = []
 
             for widget in fieldset.fields():
-                if widget.mode is None:
-                    widget.mode = self.mode
-                if widget.tmpl_widget is None:
-                    widget.tmpl_widget = form.tmpl_widget
-
                 widget.update()
                 widgets.append(widget)
                 self[widget.name] = widget
@@ -172,9 +165,6 @@ class Form(object):
 
     ``params``: Form request parameters
 
-    ``mode``: Form mode. It can be :py:data:`pform.FORM_INPUT` or
-        :py:data:`pform.FORM_DISPLAY`
-
     ``action``: Form action, by default ``request.url``
 
     ``method``: HTML Form method (`post`, `get`)
@@ -198,8 +188,6 @@ class Form(object):
 
     content = None
 
-    mode = FORM_INPUT
-
     method = 'post'
     enctype = 'multipart/form-data'
     accept = None
@@ -220,13 +208,25 @@ class Form(object):
     __parent__ = None
     __view_mapper__ = FormViewMapper
 
-    def __init__(self, context, request):
+    def __init__(self, context, request, **kw):
+        self.__dict__.update(kw)
+
         self.context = context
         self.request = request
         self.__parent__ = context
 
         if self.buttons is None:
             self.buttons = Buttons()
+
+        # convert fields to Fieldset
+        if not isinstance(self.fields, Fieldset):
+            self.fields = Fieldset(*self.fields)
+
+        # set tmpl_widget
+        for fieldset in self.fields.fieldsets():
+            for field in fieldset.fields():
+                if field.cls.tmpl_widget is None:
+                    field.cls.tmpl_widget = self.tmpl_widget
 
     @reify
     def id(self):
@@ -266,7 +266,6 @@ class Form(object):
     def update_widgets(self):
         """ prepare form widgets """
         self.widgets = FormWidgets(self.fields, self, self.request)
-        self.widgets.mode = self.mode
         self.widgets.update()
 
     def update_actions(self):
@@ -353,16 +352,3 @@ class Form(object):
         else:
             response.text = body
         return response
-
-
-class DisplayForm(Form):
-    """ Special form that just display content """
-
-    mode = FORM_DISPLAY
-    params = MultiDict([])
-
-    tmpl_view = 'form:form-display'
-    tmpl_widget = 'fields:widget-display'
-
-    def form_params(self):
-        return self.params

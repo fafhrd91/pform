@@ -161,13 +161,6 @@ class TestFieldset(BaseTestCase):
 
         return MyField(name, **kw)
 
-    def test_fieldset_extract_display(self):
-        field = self._makeOne('test', mode=pform.FORM_DISPLAY)
-        fieldset = pform.Fieldset(field).bind(object(), None, {'test': 'VALUE'})
-        data, errors = fieldset.extract()
-        self.assertEqual(data, {})
-        self.assertEqual(errors, [])
-
     def test_fieldset_extract_missing(self):
         field = self._makeOne('test')
         fieldset = pform.Fieldset(field).bind(object())
