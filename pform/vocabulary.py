@@ -1,48 +1,56 @@
-##############################################################################
-#
-# Copyright (c) 2007 Zope Foundation and Contributors.
-# All Rights Reserved.
-#
-# This software is subject to the provisions of the Zope Public License,
-# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-##############################################################################
-""" vocabulary implementation from zope.schema """
 from zope.interface import implementer
-from pform.interfaces import ITerm
+from pyramid.compat import string_types
+from pform.interfaces import ITerm, IVocabulary
 
 
 @implementer(ITerm)
-class SimpleTerm(object):
-    """Simple tokenized term used by SimpleVocabulary."""
+class Term(object):
+    """Simple tokenized term used by Vocabulary."""
 
     def __init__(self, value, token=None,
-                 title=None, description=None):
+                 title=None, description=None, **kw):
         """Create a term for value and token. If token is omitted,
-        str(value) is used for the token.  If title is provided,
-        term implements ITitledTokenizedTerm.
+        str(value) is used for the token.
         """
+        self.__dict__.update(kw)
+
         self.value = value
         if token is None:
             token = value
+        if title is None:
+            title = str(value)
         self.token = str(token)
         self.title = title
         self.description = description
 
 
-class SimpleVocabulary(object):
+@implementer(IVocabulary)
+class Vocabulary(object):
     """Vocabulary that works from a sequence of terms."""
 
-    def __init__(self, *terms):
+    def __init__(self, *items):
         """Initialize the vocabulary given a list of terms.
 
         The vocabulary keeps a reference to the list of terms passed
         in; it should never be modified while the vocabulary is used.
+
+        Also it is possible to initialize vocabulary with sequence of items,
+        in this case constructor automatically creates `Term` objects.
         """
+        terms = []
+        for rec in items:
+            if ITerm.providedBy(rec):
+                terms.append(rec)
+                continue
+            if isinstance(rec, string_types):
+                rec = (rec,)
+            if not hasattr(rec, '__iter__'):
+                rec = (rec,)
+            if len(rec) == 2:
+                terms.append(self.create_term(rec[0], rec[1], rec[1]))
+            else:
+                terms.append(self.create_term(*rec))
+
         self.by_value = {}
         self.by_token = {}
         self._terms = terms
@@ -57,21 +65,9 @@ class SimpleVocabulary(object):
             self.by_token[term.token] = term
 
     @classmethod
-    def from_items(cls, *items):
-        """Construct a vocabulary from a list of (token, value) pairs. """
-        terms = [cls.create_term(*rec) for rec in items]
-        return cls(*terms)
-
-    @classmethod
-    def from_values(cls, *values):
-        """Construct a vocabulary from a simple list. """
-        terms = [cls.create_term(value) for value in values]
-        return cls(*terms)
-
-    @classmethod
     def create_term(cls, *args):
         """Create a single term from data."""
-        return SimpleTerm(*args)
+        return Term(*args)
 
     def __contains__(self, value):
         try:

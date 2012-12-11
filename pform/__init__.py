@@ -5,7 +5,7 @@ __all__ = [
     'Field', 'FieldFactory', 'Fieldset',
     'field', 'fieldpreview', 'get_field_factory', 'get_field_preview',
 
-    'SimpleTerm','SimpleVocabulary',
+    'Term', 'Vocabulary', 'SimpleTerm', 'SimpleVocabulary',
 
     'All','Function','Regex','Email','Range', 'Length','OneOf',
 
@@ -45,8 +45,13 @@ from pform.directives import get_field_factory
 from pform.directives import get_field_preview
 
 # vocabulary
-from pform.vocabulary import SimpleTerm
-from pform.vocabulary import SimpleVocabulary
+from pform.vocabulary import Term
+from pform.vocabulary import Vocabulary
+
+SimpleTerm = Term
+SimpleVocabulary = Vocabulary
+SimpleVocabulary.from_items = SimpleVocabulary
+SimpleVocabulary.from_values = SimpleVocabulary
 
 # validators
 from pform.validator import All

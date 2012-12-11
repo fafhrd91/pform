@@ -8,7 +8,7 @@ import pform
 
 # load countries
 with open(os.path.join(os.path.split(__file__)[0], 'countries.txt'), 'r') as f:
-    countries = pform.SimpleVocabulary.from_items(
+    countries = pform.Vocabulary(
         *[(k, k, v) for k, v in
           sorted((l.strip().split(' ', 1) for l in f.readlines()),
                  key=lambda item: item[1])])

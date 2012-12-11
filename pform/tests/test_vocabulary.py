@@ -1,40 +1,103 @@
-##############################################################################
-#
-# Copyright (c) 2003 Zope Foundation and Contributors.
-# All Rights Reserved.
-#
-# This software is subject to the provisions of the Zope Public License,
-# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
-# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
-# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
-# FOR A PARTICULAR PURPOSE.
-#
-##############################################################################
-"""Test of the Vocabulary and related support APIs.
-"""
+"""Test of the Vocabulary and related support APIs."""
 from pform import vocabulary
 from base import TestCase
 
 
-class SimpleVocabularyTests(TestCase):
+class VocabularyTests(TestCase):
 
-    list_vocab = vocabulary.SimpleVocabulary.from_values(1, 2, 3)
-    items_vocab = vocabulary.SimpleVocabulary.from_items(
+    list_vocab = vocabulary.Vocabulary(1, 2, 3)
+    items_vocab = vocabulary.Vocabulary(
         (1, 'one'), (2, 'two'), (3, 'three'), (4, 'fore!'))
 
-    def test_simple_term(self):
-        t = vocabulary.SimpleTerm(1)
+    def test_ctor_from_strings(self):
+        """ Create vocabulary from strings """
+        voc = vocabulary.Vocabulary('one', 'two')
+
+        self.assertEqual(2, len(voc))
+        self.assertIn('one', voc)
+
+        term = voc.get_term('two')
+        self.assertEqual(term.value, 'two')
+        self.assertEqual(term.token, 'two')
+        self.assertEqual(term.title, 'two')
+
+    def test_ctor_from_other(self):
+        """ Create vocabulary from integers """
+        voc = vocabulary.Vocabulary(1, 2)
+
+        self.assertEqual(2, len(voc))
+        self.assertIn(1, voc)
+
+        term = voc.get_term(2)
+        self.assertEqual(term.value, 2)
+        self.assertEqual(term.token, '2')
+        self.assertEqual(term.title, '2')
+
+    def test_ctor_from_2_tuple(self):
+        """ Create vocabulary from list of 2 items tuples """
+        voc = vocabulary.Vocabulary((1,'one'), (2,'two'))
+
+        self.assertEqual(2, len(voc))
+        self.assertIn(1, voc)
+
+        term = voc.get_term(2)
+        self.assertEqual(term.value, 2)
+        self.assertEqual(term.token, 'two')
+        self.assertEqual(term.title, 'two')
+
+    def test_ctor_from_3_tuple(self):
+        """ Create vocabulary from list of 3 items tuples """
+        voc = vocabulary.Vocabulary((1,'one','One'), (2,'two','Two'))
+
+        self.assertEqual(2, len(voc))
+        self.assertIn(1, voc)
+
+        term = voc.get_term(2)
+        self.assertEqual(term.value, 2)
+        self.assertEqual(term.token, 'two')
+        self.assertEqual(term.title, 'Two')
+
+    def test_ctor_from_4_tuple(self):
+        """ Create vocabulary from list of 4 items tuples """
+        voc = vocabulary.Vocabulary(
+            (1,'one','One','One d'), (2,'two','Two','Two desc'))
+
+        self.assertEqual(2, len(voc))
+        self.assertIn(1, voc)
+
+        term = voc.get_term(2)
+        self.assertEqual(term.value, 2)
+        self.assertEqual(term.token, 'two')
+        self.assertEqual(term.title, 'Two')
+        self.assertEqual(term.description, 'Two desc')
+
+    def test_ctor_from_terms(self):
+        """ Create vocabulary from list of 4 items tuples """
+        voc = vocabulary.Vocabulary(
+            vocabulary.Term(1,'one','One','One d'),
+            vocabulary.Term(2,'two','Two','Two desc'))
+
+        self.assertEqual(2, len(voc))
+        self.assertIn(1, voc)
+
+        term = voc.get_term(2)
+        self.assertEqual(term.value, 2)
+        self.assertEqual(term.token, 'two')
+        self.assertEqual(term.title, 'Two')
+        self.assertEqual(term.description, 'Two desc')
+
+    def test_term_ctor(self):
+        t = vocabulary.Term(1)
         self.assertEqual(t.value, 1)
         self.assertEqual(t.token, "1")
-        t = vocabulary.SimpleTerm(1, "One")
+        t = vocabulary.Term(1, "One")
         self.assertEqual(t.value, 1)
         self.assertEqual(t.token, "One")
 
-    def test_simple_term_title(self):
-        t = vocabulary.SimpleTerm(1)
-        self.assertIsNone(t.title)
-        t = vocabulary.SimpleTerm(1, title="Title")
+    def test_term_ctor_title(self):
+        t = vocabulary.Term(1)
+        self.assertEqual(t.title, '1')
+        t = vocabulary.Term(1, title="Title")
         self.assertEqual(t.title, "Title")
 
     def test_order(self):
@@ -83,23 +146,23 @@ class SimpleVocabularyTests(TestCase):
 
     def test_nonunique_tokens(self):
         self.assertRaises(
-            ValueError, vocabulary.SimpleVocabulary.from_values, 2, '2')
+            ValueError, vocabulary.Vocabulary, 2, '2')
         self.assertRaises(
-            ValueError, vocabulary.SimpleVocabulary.from_items,
-            ('one', 1), ('another one', '1'))
+            ValueError, vocabulary.Vocabulary,
+            ('one', 1, 'one'), ('another one', '1', 'another one'))
         self.assertRaises(
-            ValueError, vocabulary.SimpleVocabulary.from_items,
+            ValueError, vocabulary.Vocabulary,
             ('one', 0), ('one', 1))
 
     def test_nonunique_token_message(self):
         try:
-            vocabulary.SimpleVocabulary.from_values(2, '2')
+            vocabulary.Vocabulary(2, '2')
         except ValueError as e:
             self.assertEquals(str(e), "term tokens must be unique: '2'")
 
     def test_nonunique_token_messages(self):
         try:
-            vocabulary.SimpleVocabulary.from_items(('one', 0), ('one', 1))
+            vocabulary.Vocabulary(('one', 0), ('one', 1))
         except ValueError as e:
             self.assertEquals(str(e), "term values must be unique: 'one'")
 
@@ -110,11 +173,11 @@ class SimpleVocabularyTests(TestCase):
                 self.token = repr(value)
                 self.nextvalue = value + 1
 
-        class MyVocabulary(vocabulary.SimpleVocabulary):
+        class MyVocabulary(vocabulary.Vocabulary):
+            @classmethod
             def create_term(cls, value):
                 return MyTerm(value)
-            create_term = classmethod(create_term)
 
-        vocab = MyVocabulary.from_values(1, 2, 3)
+        vocab = MyVocabulary(1, 2, 3)
         for term in vocab:
             self.assertEqual(term.value + 1, term.nextvalue)

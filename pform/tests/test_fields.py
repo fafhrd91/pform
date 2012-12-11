@@ -178,7 +178,7 @@ class TestVocabularyField(BaseTestCase):
 
         self.assertRaises(ValueError, VocabularyField, 'test')
         self.assertRaises(ValueError, VocabularyField, 'test',
-                          vocabulary=voc, voc_factory=voc)
+                          vocabulary=('test',), voc_factory=voc)
 
     def test_voc_factory(self):
         from pform.fields import VocabularyField
@@ -209,7 +209,7 @@ class TestVocabularyField(BaseTestCase):
         self.assertIs(data[-1], context)
 
     def test_vocabulary_field(self):
-        voc = pform.SimpleVocabulary.from_items(
+        voc = pform.Vocabulary(
             (1, 'one', 'One'),
             (2, 'two', 'Two'),
             (3, 'three', 'Three'))
@@ -285,7 +285,7 @@ class TestBaseChoiceField(BaseTestCase):
     def test_basechoice(self):
         request = self.make_request()
 
-        voc = pform.SimpleVocabulary.from_items(
+        voc = pform.Vocabulary(
             (1, 'one', 'One'),
             (2, 'two', 'Two'),
             (3, 'three', 'Three'))
@@ -322,7 +322,7 @@ class TestBaseMultiChoiceField(BaseTestCase):
 
         self.assertRaises(ValueError, self._makeOne, 'test')
 
-        voc = pform.SimpleVocabulary.from_items(
+        voc = pform.Vocabulary(
             (1, 'one', 'One'),
             (2, 'two', 'Two'),
             (3, 'three', 'Three'))
@@ -363,7 +363,7 @@ class TestChoiceField(BaseTestCase):
     def test_vocabulary_field(self):
         request = self.make_request()
 
-        voc = pform.SimpleVocabulary.from_items(
+        voc = pform.Vocabulary(
             (1, 'one', 'One'),
             (2, 'two', 'Two'))
 
@@ -420,7 +420,7 @@ class TestMultiChoiceField(BaseTestCase):
     def test_fields_decimal(self):
         request = self.make_request()
 
-        voc = pform.SimpleVocabulary.from_items(
+        voc = pform.Vocabulary(
             (1, 'one', 'One'),
             (2, 'two', 'Two'),
             (3, 'three', 'Three'))

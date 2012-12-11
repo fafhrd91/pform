@@ -8,7 +8,7 @@ from pform import iso8601
 from pform import vocabulary
 from pform.field import Field, InputField
 from pform.directives import field
-from pform.interfaces import _, null, Invalid, ITerm
+from pform.interfaces import _, null, Invalid, ITerm, IVocabulary
 
 
 class VocabularyField(InputField):
@@ -19,6 +19,11 @@ class VocabularyField(InputField):
     no_value_token = '--NOVALUE--'
 
     def __init__(self, name, **kw):
+        # convert vocabulary
+        voc = kw.get('vocabulary', self.vocabulary)
+        if (voc is not None and not IVocabulary.providedBy(voc)):
+            kw['vocabulary'] = vocabulary.Vocabulary(*voc)
+
         super(VocabularyField, self).__init__(name, **kw)
 
         if self.voc_factory is None and self.vocabulary is None:
@@ -399,7 +404,7 @@ class RadioField(BaseChoiceField):
 class BoolField(BaseChoiceField):
     """Boolean input widget. Field name is ``bool``."""
 
-    vocabulary = vocabulary.SimpleVocabulary.from_items(
+    vocabulary = vocabulary.Vocabulary(
         (True, 'true',  'yes'),
         (False, 'false',  'no'))
 
@@ -451,7 +456,7 @@ class TimezoneField(ChoiceField):
     error_msg = _('Invalid timezone "${val}"')
 
     _tzs = dict((str(tz).lower(), str(tz)) for tz in pytz.all_timezones)
-    vocabulary = vocabulary.SimpleVocabulary.from_items(
+    vocabulary = vocabulary.Vocabulary(
         *[(str(tz).lower(), str(tz).lower(), str(tz))
           for tz in pytz.all_timezones])
 

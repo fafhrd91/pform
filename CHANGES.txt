@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-0.4 (Unreleased)
+0.4 (12-10-2012)
 ================
 
 - Added `Composite` field
@@ -10,6 +10,11 @@ CHANGES
 - Render str in `form:error` message
 
 - Removed `display` mode
+
+- SimpleTerm and SimpleVocabulary renamed to Term and Vocabulary
+
+- Removed `from_items` and `from_value` SimpleVocabulary methods, 
+  use Vocabulary constructor instead
 
 
 0.3 (11-27-2012)
