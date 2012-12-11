@@ -19,11 +19,6 @@ class VocabularyField(InputField):
     no_value_token = '--NOVALUE--'
 
     def __init__(self, name, **kw):
-        # convert vocabulary
-        voc = kw.get('vocabulary', self.vocabulary)
-        if (voc is not None and not IVocabulary.providedBy(voc)):
-            kw['vocabulary'] = vocabulary.Vocabulary(*voc)
-
         super(VocabularyField, self).__init__(name, **kw)
 
         if self.voc_factory is None and self.vocabulary is None:
@@ -31,6 +26,11 @@ class VocabularyField(InputField):
 
         if self.voc_factory is not None and self.vocabulary is not None:
             raise ValueError("Vocabulary and vocabulary factory are defined.")
+
+        # convert vocabulary
+        voc = self.vocabulary
+        if (voc is not None and not IVocabulary.providedBy(voc)):
+            self.vocabulary = vocabulary.Vocabulary(*voc)
 
     def bind(self, request, prefix, value, params, context=None):
         clone = super(VocabularyField, self).bind(

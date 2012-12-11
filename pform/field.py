@@ -6,13 +6,30 @@ from pform.interfaces import _, null, Invalid
 log = logging.getLogger('pform')
 
 
-class _FieldBase(object):
+def _stub_init(self, **kw):
+    self.__dict__.update(kw)
 
-    def __init__(self, **kw):
-        self.__dict__.update(kw)
+def _stub_bind(self, *args, **kw):
+    raise TypeError("Can not bind already bound field.")
 
-    def bind(self, *args, **kw):
-        raise TypeError("Can not bind already bound field.")
+
+class _FieldMeta(type):
+    """ Construct new class for bind operation """
+
+    def __call__(cls, *args, **kw):
+        field = super(_FieldMeta, cls).__call__(*args, **kw)
+
+        field.cls = type(cls.__name__, (cls,), field.__dict__)
+        field.cls.__init__ = _stub_init
+        field.cls.bind = _stub_bind
+
+        if 'preparer' in kw:
+            field.cls.preparer = staticmethod(kw['preparer'])
+
+        if 'validator' in kw:
+            field.cls.validator = staticmethod(kw['validator'])
+
+        return field
 
 
 class Field(object):
@@ -48,6 +65,8 @@ class Field(object):
     ``tmpl_widget``: Widget renderer.
 
     """
+
+    __metaclass__ = _FieldMeta
 
     __field__ = ''
 
@@ -87,15 +106,6 @@ class Field(object):
         self.default = kw.get('default', self.default)
         self.preparer = kw.get('preparer', None)
         self.validator = kw.get('validator', None)
-
-        self.cls = type(self.__class__.__name__,
-                        (_FieldBase, self.__class__), self.__dict__)
-
-        if 'preparer' in kw:
-            self.cls.preparer = staticmethod(kw['preparer'])
-
-        if 'validator' in kw:
-            self.cls.validator = staticmethod(kw['validator'])
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """

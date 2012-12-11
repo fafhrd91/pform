@@ -180,6 +180,14 @@ class TestVocabularyField(BaseTestCase):
         self.assertRaises(ValueError, VocabularyField, 'test',
                           vocabulary=('test',), voc_factory=voc)
 
+    def test_ctor_convert_vocabulary(self):
+        from pform.fields import VocabularyField
+
+        field = VocabularyField('test', vocabulary=('one', 'two'))
+        self.assertIsInstance(field.vocabulary, pform.Vocabulary)
+        self.assertIs(field.vocabulary, field.cls.vocabulary)
+        self.assertEqual(2, len(field.vocabulary))
+
     def test_voc_factory(self):
         from pform.fields import VocabularyField
 

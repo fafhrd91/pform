@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 version = '0.4'
 
 install_requires = ['setuptools',
-                    'pyramid >= 1.4b2',
+                    'pyramid >= 1.4b3',
                     'pyramid_amdjs',
                     'pyramid_jinja2',
                     'player >= 0.4',
