@@ -200,9 +200,9 @@ class Form(object):
     csrf_name = 'csrf-token'
     csrf_token = ''
 
-    tmpl_view = 'form:view'
-    tmpl_actions = 'form:actions'
-    tmpl_widget = 'fields:widget'
+    tmpl_view = 'form:form'
+    tmpl_actions = 'form:form-actions'
+    tmpl_widget = 'form:widget'
 
     __name__ = ''
     __parent__ = None

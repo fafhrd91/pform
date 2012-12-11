@@ -29,7 +29,7 @@ fields and actions.
          @pform.button('Save')
          def safe_handler(self):
              data, errors = self.extract()
-             
+
              if errors:
                  self.add_error_message(errors)
 
@@ -98,9 +98,8 @@ There are two ways for field and form customization::
 
 1. Global customization 
 
-  `pform` library uses `player`::https://github.com/fafhrd91/pform/tree/master/examples library for customization. `pform` libriary defines two `layer category`
-`form` for all templates related to form generation (form, actions, errors) and
-`fields` for all templates related to field and widget generation.
+  `pform` library uses `player`::https://github.com/fafhrd91/pform/tree/master/examples library for customization. `pform` libriary defines `layer category`
+`form` for all templates.
 
 2. Field/form customization
 

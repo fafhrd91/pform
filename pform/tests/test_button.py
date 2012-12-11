@@ -24,7 +24,7 @@ class TestButton(BaseTestCase):
         context = object()
         request = DummyRequest()
 
-        widget = btn.bind('test.', params, context, request)
+        widget = btn.bind(request, 'test.', params, context)
 
         self.assertIsNot(btn, widget)
         self.assertIs(widget.context, context)
@@ -43,7 +43,7 @@ class TestButton(BaseTestCase):
         context = object()
         request = DummyRequest()
 
-        widget = btn.bind('button.', params, context, request)
+        widget = btn.bind(request, 'button.', params, context)
 
         self.assertFalse(widget.activated())
 
@@ -59,10 +59,10 @@ class TestButton(BaseTestCase):
         context = object()
         request = self.request
 
-        widget = btn.bind('test.', params, context, request)
+        widget = btn.bind(request, 'test.', params, context)
         self.assertEqual(
             strip(widget.render().strip()),
-            '<input type="submit" id="test-test" name="test.test" value="Test" readonly="False" disable="False" title="Title" class="btn btn-primary">')
+            '<input type="submit" class="btn btn-primary" value="Test" id="test-test" name="test.test" title="Title">')
 
     def test_execute(self):
         import pform

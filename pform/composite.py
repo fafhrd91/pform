@@ -9,8 +9,8 @@ class CompositeField(Field):
 
     fields = None
 
-    tmpl_input = 'fields:composite'
-    tmpl_widget = 'fields:widget-composite'
+    tmpl_input = 'form:composite'
+    tmpl_widget = 'form:widget-composite'
 
     def __init__(self, name, **kw):
         super(CompositeField, self).__init__(name, **kw)

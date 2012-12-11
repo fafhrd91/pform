@@ -119,9 +119,7 @@ def includeme(cfg):
     cfg.add_directive('add_form_field', add_field)
 
     # layers
-    cfg.add_layer('form', path='pform:templates/form/')
-    cfg.add_layer('fields', path='pform:templates/fields/')
-    cfg.add_layer('message', path='pform:templates/messages/')
+    cfg.add_layer('form', path='pform:templates/')
 
     # scan
     cfg.scan()

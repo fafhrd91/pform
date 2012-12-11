@@ -92,7 +92,7 @@ class fieldpreview(object):
 
           widget = field.bind(request, 'preview.', form.null, {})
           widget.update()
-          return player.render(request, 'fields:widget', widget)
+          return player.render(request, 'form:widget', widget)
 
     """
     def __init__(self, cls):

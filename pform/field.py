@@ -6,34 +6,8 @@ from pform.interfaces import _, null, Invalid
 log = logging.getLogger('pform')
 
 
-def _stub_init(self, **kw):
-    self.__dict__.update(kw)
-
-def _stub_bind(self, *args, **kw):
-    raise TypeError("Can not bind already bound field.")
-
-
-class _FieldMeta(type):
-    """ Construct new class for bind operation """
-
-    def __call__(cls, *args, **kw):
-        field = super(_FieldMeta, cls).__call__(*args, **kw)
-
-        field.cls = type(cls.__name__, (cls,), field.__dict__)
-        field.cls.__init__ = _stub_init
-        field.cls.bind = _stub_bind
-
-        if 'preparer' in kw:
-            field.cls.preparer = staticmethod(kw['preparer'])
-
-        if 'validator' in kw:
-            field.cls.validator = staticmethod(kw['validator'])
-
-        return field
-
-
-class Field(object):
-    """Field base class.
+class _Field(object):
+    """Base class for all fields.
 
     ``name``: Name of this field.
 
@@ -66,9 +40,8 @@ class Field(object):
 
     """
 
-    __metaclass__ = _FieldMeta
-
     __field__ = ''
+    __staticfuncs__ = ('preparer', 'validator')
 
     name = ''
     title = ''
@@ -183,12 +156,42 @@ class Field(object):
 
     def render_widget(self):
         """ render field widget """
-        tmpl = self.tmpl_widget or 'fields:widget'
+        tmpl = self.tmpl_widget or 'form:widget'
         return render(self.request, tmpl, self,
                       view=self, value=self.form_value)
 
     def __repr__(self):
         return '<%s %r>' % (self.__class__.__name__, self.name)
+
+
+# Field metaclass
+def _stub_init(self, **kw):
+    self.__dict__.update(kw)
+
+def _stub_bind(self, *args, **kw):
+    raise TypeError("Can not bind already bound field.")
+
+
+class _FieldMeta(type):
+    """ Construct new class for bind operation """
+
+    def __call__(cls, *args, **kw):
+        field = super(_FieldMeta, cls).__call__(*args, **kw)
+
+        field.cls = type(cls.__name__, (cls,), field.__dict__)
+        field.cls.__init__ = _stub_init
+        field.cls.bind = _stub_bind
+
+        for name in field.__staticfuncs__:
+            val = getattr(field, name, None)
+            if callable(val):
+                setattr(field.cls, name, staticmethod(val))
+
+        return field
+
+
+# py3 and py3 metaclass support
+Field = _FieldMeta('Field', (_Field,), dict(_Field.__dict__))
 
 
 class InputField(Field):
@@ -200,8 +203,8 @@ class InputField(Field):
                   'lang', 'disabled', 'readonly', 'alt', 'accesskey',
                   'size', 'maxlength')
 
-    tmpl_input = 'fields:input'
-    tmpl_display = 'fields:input-display'
+    tmpl_input = 'form:input'
+    tmpl_display = 'form:input-display'
 
     def update(self):
         super(InputField, self).update()

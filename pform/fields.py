@@ -60,8 +60,6 @@ class VocabularyField(InputField):
 class BaseChoiceField(VocabularyField):
     """ base choice field """
 
-    tmpl_display = 'fields:choice-display'
-
     error_msg = _('"${val}" is not in vocabulary')
 
     def to_form(self, value):
@@ -97,8 +95,6 @@ class BaseChoiceField(VocabularyField):
 
 class BaseMultiChoiceField(VocabularyField):
     """ multi choice field """
-
-    tmpl_display = 'fields:multichoice-display'
 
     error_msg = _('"${val}" is not in vocabulary')
 
@@ -216,7 +212,7 @@ class TextAreaField(TextField):
     cols = 40
     value = ''
 
-    tmpl_input = 'fields:textarea'
+    tmpl_input = 'form:textarea'
 
 
 @field('file')
@@ -303,15 +299,13 @@ class PasswordField(TextField):
     klass = 'password-widget'
     html_type = 'password'
 
-    tmpl_display = 'fields:password-display'
-
 
 @field('multichoice')
 class MultiChoiceField(BaseMultiChoiceField):
     """HTML Checkboxs input based widget. Field name is ``multichoice``."""
 
     klass = 'multichoice-widget'
-    tmpl_input = 'fields:multichoice'
+    tmpl_input = 'form:multichoice'
 
 
 class DateField(TextField):
@@ -396,7 +390,7 @@ class RadioField(BaseChoiceField):
     klass = 'radio-widget'
     html_type = 'radio'
     html_attrs = BaseChoiceField.html_attrs + ('checked',)
-    tmpl_input = 'fields:radio'
+    tmpl_input = 'form:radio'
 
 
 
@@ -408,7 +402,7 @@ class BoolField(BaseChoiceField):
         (True, 'true',  'yes'),
         (False, 'false',  'no'))
 
-    tmpl_input = 'fields:bool'
+    tmpl_input = 'form:bool'
 
 
 @field('choice')
@@ -420,7 +414,7 @@ class ChoiceField(BaseChoiceField):
     multiple = None
     prompt_message = _('select a value ...')
 
-    tmpl_input = 'fields:select'
+    tmpl_input = 'form:select'
 
     def update_items(self):
         super(ChoiceField, self).update_items()

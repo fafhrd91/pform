@@ -16,6 +16,10 @@ CHANGES
 - Removed `from_items` and `from_value` SimpleVocabulary methods, 
   use Vocabulary constructor instead
 
+- Use `form` layer category for form and field templates
+
+- Button class now inherits from InputField
+
 
 0.3 (11-27-2012)
 ================

@@ -4,6 +4,7 @@ import sys
 import binascii
 from player import render
 from collections import OrderedDict
+from pform.field import InputField
 
 AC_DEFAULT = 0
 AC_PRIMARY = 1
@@ -20,19 +21,17 @@ css = {
     AC_WARNING: 'brn-warning'}
 
 
-class Button(object):
+class Button(InputField):
     """A simple button in a form."""
 
-    lang = None
-    readonly = False
-    alt = None
-    accesskey = None
-    disabled = False
-    tabindex = None
     klass = 'btn'
     actype = ''
 
-    template = 'form:submit'
+    html_type = 'submit'
+    html_attrs = ('id', 'name', 'title', 'lang', 'disabled', 'tabindex',
+                  'lang', 'disabled', 'readonly', 'alt', 'accesskey', 'value')
+
+    __staticfuncs__ = InputField.__staticfuncs__ + ('action', 'condition')
 
     def __init__(self, name='submit', value=None, title=None,
                  action=None, action_name=None,
@@ -54,6 +53,7 @@ class Button(object):
         self.actype = actype
         self.condition = condition
         self.extract = extract
+        self.klass = '{0} {1}'.format(self.klass, css.get(self.actype,''))
 
     def __repr__(self):
         return '<{0} "{1}" : "{2}">'.format(
@@ -77,23 +77,16 @@ class Button(object):
         else:
             raise TypeError("Action is not specified")
 
-    def bind(self, prefix, params, context, request):
-        widget = self.__class__.__new__(self.__class__)
-        widget.__dict__.update(self.__dict__)
-
-        widget.id = str(prefix + widget.name).replace('.', '-')
-        widget.name = str(prefix + widget.name)
-        widget.params = params
-        widget.context = context
-        widget.request = request
-        widget.klass = '{0} {1}'.format(widget.klass, css.get(widget.actype,''))
-        return widget
+    def bind(self, request, prefix, params, context):
+        return self.cls(
+            id = str(prefix + self.name).replace('.', '-'),
+            name = str(prefix + self.name),
+            params = params,
+            request = request,
+            context = context)
 
     def activated(self):
         return self.params.get(self.name, None) is not None
-
-    def render(self):
-        return render(self.request, self.template, self)
 
 
 class Buttons(OrderedDict):
@@ -159,7 +152,7 @@ class Actions(OrderedDict):
             if field.condition and not field.condition(form):
                 continue
 
-            self[field.name] = field.bind(prefix, params, form, self.request)
+            self[field.name] = field.bind(self.request, prefix, params, form)
 
     def execute(self):
         result = None
@@ -197,6 +190,7 @@ def _button(f_locals, value, kwargs):
 
     def createHandler(func):
         btn.action_name = func.__name__
+        btn.cls.action_name = func.__name__
         return func
 
     return createHandler
