@@ -6,9 +6,9 @@ from pyramid.compat import NativeIO, text_type, PY3
 
 from pform import iso8601
 from pform import vocabulary
-from pform.field import Field, InputField
+from pform.field import InputField
 from pform.directives import field
-from pform.interfaces import _, null, Invalid, ITerm, IVocabulary
+from pform.interfaces import _, null, Invalid, IVocabulary
 
 
 class VocabularyField(InputField):

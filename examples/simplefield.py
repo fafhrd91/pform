@@ -28,7 +28,7 @@ In most cases `tmpl_widget` is the same for all fields,
 but `tmpl_input` is different.
 
 """
-import os, decimal
+import decimal
 from pprint import pprint
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound

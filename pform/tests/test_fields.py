@@ -691,8 +691,6 @@ class TestFileField(BaseTestCase):
         field = self._makeOne('test', max_size=1)
         field = field.bind(request, '', 'content', {})
 
-        value = {'mimetype': 'image/png'}
-
         fp = NativeIO('          ')
 
         with self.assertRaises(pform.Invalid) as cm:

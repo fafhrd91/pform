@@ -84,8 +84,6 @@ class TestFormErrors(BaseTestCase):
         self.assertIn('Please fix indicated errors.', res)
 
     def test_add_error_message(self):
-        import pform
-
         request = self.make_request()
 
         form = pform.Form(object(), request)
