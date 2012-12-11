@@ -116,7 +116,7 @@ def includeme(cfg):
 
     # field
     from pform.directives import add_field
-    cfg.add_directive('add_form_field', add_field)
+    cfg.add_directive('provide_form_field', add_field)
 
     # layers
     cfg.add_layer('form', path='pform:templates/')

@@ -198,7 +198,7 @@ class TestFieldFactory(BaseTestCase):
         class MyField(pform.Field):
             pass
 
-        self.config.add_form_field('my-field', MyField)
+        self.config.provide_form_field('my-field', MyField)
 
         field = pform.FieldFactory(
             'my-field', 'test', title='Test field')

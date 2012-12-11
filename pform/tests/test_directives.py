@@ -28,7 +28,7 @@ class TestFieldset(BaseTestCase):
         class MyField(pform.Field):
             """ """
 
-        self.config.add_form_field('my-field', MyField)
+        self.config.provide_form_field('my-field', MyField)
         self.assertIs(pform.get_field_factory(self.request, 'my-field'), MyField)
 
     def test_conflict(self):
@@ -41,8 +41,8 @@ class TestFieldset(BaseTestCase):
 
         config = Configurator()
         config.include('pform')
-        config.add_form_field('my-field', MyField)
-        config.add_form_field('my-field', MyField2)
+        config.provide_form_field('my-field', MyField)
+        config.provide_form_field('my-field', MyField2)
 
         self.assertRaises(ConfigurationConflictError, config.commit)
 

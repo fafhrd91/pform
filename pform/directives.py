@@ -21,7 +21,7 @@ def add_field(cfg, name, cls):
       config = Configurator(...)
       config.include('pform')
 
-      config.add_form_field('text')
+      config.provide_form_field('text', TextField)
 
     """
     discr = (ID_FIELD, name)
