@@ -7,7 +7,7 @@ install_requires = ['setuptools',
                     'pyramid >= 1.4b3',
                     'pyramid_amdjs',
                     'pyramid_jinja2',
-                    'player >= 0.4',
+                    'player >= 0.6',
                     'pytz',
                     ]
 
