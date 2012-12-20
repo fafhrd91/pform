@@ -1,10 +1,10 @@
 import os
 from setuptools import setup, find_packages
 
-version = '0.4'
+version = '0.4.1'
 
 install_requires = ['setuptools',
-                    'pyramid >= 1.4b3',
+                    'pyramid >= 1.4',
                     'pyramid_amdjs',
                     'pyramid_jinja2',
                     'player >= 0.6',
