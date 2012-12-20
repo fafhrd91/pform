@@ -121,6 +121,14 @@ class TestField(BaseTestCase):
             field.validate('test')
         self.assertEqual(field.error_required, cm.exception.msg)
 
+    def test_field_validate_null(self):
+        field = pform.Field('test')
+        field.missing = ''
+
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate(pform.null)
+        self.assertEqual(field.error_required, cm.exception.msg)
+
     def test_field_extract(self):
         field = pform.Field('test')
 

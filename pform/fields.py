@@ -231,6 +231,9 @@ class FileField(InputField):
     def validate(self, value):
         super(FileField, self).validate(value)
 
+        if value is null:
+            return
+
         if self.max_size:
             value['fp'].seek(0, 2)
             size = value['fp'].tell()

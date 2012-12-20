@@ -139,7 +139,7 @@ class _Field(object):
         if self.typ is not None and not isinstance(value, self.typ):
             raise Invalid(self.error_wrong_type, self)
 
-        if self.required and value == self.missing:
+        if self.required and (value == self.missing or value is null):
             raise Invalid(self.error_required, self)
 
         if self.validator is not None:

@@ -287,4 +287,25 @@ class TestFieldsetErrors(BaseTestCase):
 
         self.assertIn('field', errors)
         self.assertIn(errors[0].msg, 'error')
-        self.assertIs(f.error.msg, 'error')
+        self.assertEqual(f.error.msg, 'error')
+
+    def test_fieldset_append(self):
+        errors = pform.FieldsetErrors(pform.Fieldset())
+
+        err = pform.Invalid('error')
+        errors.append(err)
+
+        self.assertIn(err, errors)
+
+    def test_fieldset_append_tuple(self):
+        f = field.bind(self.request,'','',{})
+        f.name = 'field'
+        fieldset = pform.Fieldset(f)
+        errors = pform.FieldsetErrors(fieldset)
+
+        err = pform.Invalid('error')
+        errors.append(('field', 'error'))
+
+        self.assertIn('field', errors)
+        self.assertIn(errors[0].msg, 'error')
+        self.assertEqual(f.error.msg, 'error')

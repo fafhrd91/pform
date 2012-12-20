@@ -680,6 +680,15 @@ class TestFileField(BaseTestCase):
         self.assertIs(type(res), dict)
         self.assertEqual(res['filename'], 'test.jpg')
 
+    def test_validate_null(self):
+        request = self.make_request()
+
+        field = self._makeOne('test', allowed_types=('image/jpg',))
+        field = field.bind(request, '', 'content', {})
+        field.required = False
+
+        self.assertIsNone(field.validate(pform.null))
+
     def test_validate_allowed_types(self):
         request = self.make_request()
 

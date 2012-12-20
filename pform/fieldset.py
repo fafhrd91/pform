@@ -165,6 +165,17 @@ class FieldsetErrors(list):
 
         return r
 
+    def append(self, err):
+        """
+        Append error to fieldset errors. If err is tuple of two values,
+        then first element acts as name and second as err for `add_field_error`
+        call.
+        """
+        if isinstance(err, tuple):
+            self.add_field_error(*err)
+        else:
+            super(FieldsetErrors, self).append(err)
+
     def add_field_error(self, name, err):
         """
         Add error to specific field. Set error `field` to specified field.
@@ -188,5 +199,5 @@ class FieldsetErrors(list):
             return super(FieldsetErrors, self).__contains__(name)
 
         for err in self:
-            if err.field and err.field.name == name:
+            if (err.field and err.field.name == name) or (err.name == name):
                 return True
