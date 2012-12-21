@@ -8,8 +8,7 @@ pform
 Simple form example
 -------------------
 
-Form contains three different subsystems, basic form attributes, 
-fields and actions.
+Form contains three different subsystems, basic form attributes, fields and actions.
 
 .. code-block:: python
 
@@ -39,8 +38,7 @@ fields and actions.
          def cancel_handler(self):
              return HTTPFound(location='.')
 
-This form renders one field `name` and two 
-actions `safe` and `cancel` (submit buttons). Now we can render this form:
+This form renders one field `name` and two actions `safe` and `cancel` (submit buttons). Now we can render this form:
 
 .. code-block:: python
 
@@ -94,31 +92,23 @@ To get form values use `extract` method, this method return
 Customization
 -------------
 
-There are two ways for field and form customization::
+There are two ways for field and form customization:
 
 1. Global customization 
 
-  `pform` library uses `player`::https://github.com/fafhrd91/pform/tree/master/examples library for customization. `pform` libriary defines `layer category`
-`form` for all templates.
+  `pform` library uses `player`::https://github.com/fafhrd91/pform/tree/master/examples library for customization. `pform` libriary defines layer category `form` for all templates.
+
 
 2. Field/form customization
 
-  Also it is possible to customize widget of input template for each field.
-You can pass ``tmpl_widget`` argument to to field constructor for widget
-customization and ``tmpl_input`` argument for input generation. Both arguments
-should be valid pyramid renderer path.
-  Form accepts three different templates, ``tmpl_view``, ``tmpl_actions`` and 
-``tmpl_widget``. ``tmpl_view`` is form renderer, ``tmpl_actions`` if form 
-buttons renderer, ``tmpl_widget`` is custom field widget renderer. If 
-field does not use custom ``tmpl_widget`` then form automatically sets
-``tmpl_widget`` for each of this fields.
+  Also it is possible to customize widget of input template for each field. You can pass ``tmpl_widget`` argument to to field constructor for widget customization and ``tmpl_input`` argument for input generation. Both arguments should be valid pyramid renderer path.
+  Form accepts three different templates, ``tmpl_view``, ``tmpl_actions`` and ``tmpl_widget``. ``tmpl_view`` is form renderer, ``tmpl_actions`` if form buttons renderer, ``tmpl_widget`` is custom field widget renderer. If field does not use custom ``tmpl_widget`` then form automatically sets ``tmpl_widget`` for each of this fields.
 
 
 Examples
 --------
 
-There are several example.  You can find them in the `examples` 
-directory at github.
+There are several example.  You can find them in the `examples` directory at github.
 
 https://github.com/fafhrd91/pform/tree/master/examples
 
@@ -136,3 +126,4 @@ License
 -------
 
 pform is offered under the BSD license.
+

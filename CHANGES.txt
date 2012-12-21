@@ -1,9 +1,8 @@
-=======
 CHANGES
 =======
 
 0.5 (12-21-2012)
-================
+----------------
 
 - Added `flat` attribute to field and fieldset, 
   with flat fieldset and composite field uses primary data 
@@ -11,13 +10,13 @@ CHANGES
 
 
 0.4.1 (12-20-2012)
-==================
+------------------
 
 - Fixed FileField validation
 
 
 0.4 (12-12-2012)
-================
+----------------
 
 - Added `Composite` field
 
@@ -36,7 +35,7 @@ CHANGES
 
 
 0.3 (11-27-2012)
-================
+----------------
 
 - Allow to add `str` as error in `Form.validate` method
 
@@ -59,7 +58,7 @@ CHANGES
 
 
 0.2 (11-13-2012)
-================
+----------------
 
 - Fixed submit button template
 
@@ -69,6 +68,7 @@ CHANGES
 
 
 0.1 (11-07-2012)
-================
+----------------
 
 - Initial release
+
