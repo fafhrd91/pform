@@ -2,6 +2,14 @@
 CHANGES
 =======
 
+0.5 (12-21-2012)
+================
+
+- Added `flat` attribute to field and fieldset, 
+  with flat fieldset and composite field uses primary data 
+  dictionary instead of sub dict
+
+
 0.4.1 (12-20-2012)
 ==================
 

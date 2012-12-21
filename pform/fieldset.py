@@ -16,6 +16,7 @@ class Fieldset(OrderedDict):
         self.name = kwargs.pop('name', '')
         self.title = kwargs.pop('title', '')
         self.description = kwargs.pop('description', '')
+        self.flat = kwargs.pop('flat', False)
         self.prefix = '%s.' % self.name if self.name else ''
         self.lprefix = len(self.prefix)
         self.filter = kwargs.pop('filter', None)
@@ -77,9 +78,10 @@ class Fieldset(OrderedDict):
             name=self.name,
             title=self.title,
             prefix=self.prefix,
+            flat=self.flat,
             validator=self.validator.validators)
 
-        if data is None:
+        if data is None or data is null:
             data = {}
 
         clone.request = request
@@ -88,13 +90,14 @@ class Fieldset(OrderedDict):
         idprefix = '%s%s'%(self.prefix, prefix)
 
         for name, field in self.items():
+            value = data if field.flat else data.get(name, null)
+
             if isinstance(field, Fieldset):
                 clone[name] = field.bind(
-                    request, data.get(name, None), params, idprefix, context)
+                    request, value, params, idprefix, context)
             else:
                 clone[name] = field.bind(
-                    request, self.prefix,
-                    data.get(name, null), params, context)
+                    request, self.prefix, value, params, context)
                 clone[name].set_id_prefix(idprefix)
 
         return clone
@@ -108,7 +111,10 @@ class Fieldset(OrderedDict):
                 continue
 
             fdata, ferrors = fieldset.extract()
-            data[fieldset.name] = fdata
+            if fieldset.flat:
+                data.update(fdata)
+            else:
+                data[fieldset.name] = fdata
             errors.extend(ferrors)
 
         for field in self.fields():
@@ -133,7 +139,10 @@ class Fieldset(OrderedDict):
                 value = field.missing
                 errors.append(e)
 
-            data[field.name[self.lprefix:]] = value
+            if field.flat:
+                data.update(value)
+            else:
+                data[field.name[self.lprefix:]] = value
 
         if not errors:
             try:

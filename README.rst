@@ -25,7 +25,7 @@ fields and actions.
              pform.TextField(
                 'name', title='Name')
          )
-    
+
          @pform.button('Save')
          def safe_handler(self):
              data, errors = self.extract()
@@ -126,7 +126,7 @@ https://github.com/fafhrd91/pform/tree/master/examples
 Requirements
 ------------
 
-- Python 2.6+ or Python 3.2+
+- Python 2.7+ or Python 3.2+
 
 - virtualenv
 

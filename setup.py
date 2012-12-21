@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = '0.4.1'
+version = '0.5'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4',
@@ -48,8 +48,5 @@ setup(name='pform',
           ('tests/**', 'ignore', None),
           ('*/tests/**', 'ignore', None),
           ('**.py', 'lingua_python', None),
-          ('**.pt', 'lingua_xml', None),
-          ('**.mustache', 'mustache', None),
-          ('**.hb', 'mustache', None),
           ]},
       )

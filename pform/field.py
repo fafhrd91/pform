@@ -46,6 +46,7 @@ class _Field(object):
     name = ''
     title = ''
     description = ''
+    flat = False
 
     default = null
     required = True

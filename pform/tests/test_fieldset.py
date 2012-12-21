@@ -210,6 +210,31 @@ class TestFieldset(BaseTestCase):
         self.assertEqual(data['test'], 'FORM')
         self.assertEqual(data['fs']['test'], 'NESTED FORM')
 
+    def test_fieldset_extract_nested_flat(self):
+        field1 = self._makeOne('test')
+        field2 = self._makeOne('nested')
+
+        fieldset = pform.Fieldset(
+            field1,
+            pform.Fieldset(name='fs', flat=True, *(field2,))
+            ).bind(object, params={'test': 'FORM', 'fs.nested': 'NESTED FORM'})
+
+        data, errors = fieldset.extract()
+        self.assertFalse(bool(errors))
+        self.assertEqual({'test': 'FORM', 'nested': 'NESTED FORM'}, data)
+
+    def test_fieldset_extract_nested_flat_composite(self):
+        field1 = self._makeOne('test')
+        field2 = self._makeOne('nested')
+
+        fieldset = pform.Fieldset(
+            field1, pform.CompositeField('fs', flat=True, fields=(field2,))
+        ).bind(object, params={'test': 'FORM', 'fs.nested': 'NESTED FORM'})
+
+        data, errors = fieldset.extract()
+        self.assertFalse(bool(errors))
+        self.assertEqual({'test': 'FORM', 'nested': 'NESTED FORM'}, data)
+
     def test_fieldset_extract_preparer(self):
         def lower(val):
             return val.lower()
