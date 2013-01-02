@@ -69,6 +69,11 @@ class Invalid(Exception):
 class _null(object):
     """ Represents a null value in field-related operations. """
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return True
+        return False
+
     def __len__(self):
         return 0
 

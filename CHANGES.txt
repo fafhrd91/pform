@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+0.5.1 (Unreleased)
+------------------
+
+- BaseMultiChoiceField.missing value is [] by default
+
+- copy field missing value during fieldset data extraction
+
+
 0.5 (12-21-2012)
 ----------------
 

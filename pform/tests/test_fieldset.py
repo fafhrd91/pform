@@ -169,6 +169,17 @@ class TestFieldset(BaseTestCase):
         self.assertIs(errors[0].field, fieldset['test'])
         self.assertEqual(errors[0].msg, 'Required')
 
+    def test_fieldset_extract_missing_copy(self):
+        """ Fieldset makes copy of field missing value """
+        missing = []
+        field = self._makeOne('test', missing=missing)
+        fieldset = pform.Fieldset(field).bind(object())
+
+        data, errors = fieldset.extract()
+        self.assertIs(missing, fieldset['test'].missing)
+        self.assertIsNot(data['test'], missing)
+        self.assertEqual(data['test'], missing)
+
     def test_fieldset_extract_missing_nested(self):
         field = self._makeOne('test')
         fieldset = pform.Fieldset(

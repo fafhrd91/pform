@@ -1,4 +1,5 @@
 """ Form Fieldset implementation """
+import copy
 from collections import OrderedDict
 from pyramid.compat import text_type, string_types
 
@@ -128,15 +129,18 @@ class Fieldset(OrderedDict):
                     errors.append(e)
                     continue
 
-            if value is null:
-                value = field.missing
+            if value is null and field.missing is not null:
+                value = copy.copy(field.missing)
 
             try:
                 field.validate(value)
                 if field.preparer is not None:
                     value = field.preparer(value)
             except Invalid as e:
-                value = field.missing
+                value = null
+                if field.missing is not null:
+                    value = copy.copy(field.missing)
+
                 errors.append(e)
 
             if field.flat:

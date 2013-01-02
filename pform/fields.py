@@ -96,6 +96,7 @@ class BaseChoiceField(VocabularyField):
 class BaseMultiChoiceField(VocabularyField):
     """ multi choice field """
 
+    missing = []
     error_msg = _('"${val}" is not in vocabulary')
 
     def to_form(self, value):
