@@ -33,11 +33,11 @@ class FormWidgets(OrderedDict):
     fieldsets = ()
 
     def __init__(self, fields, form, request):
-        super(FormWidgets, self).__init__()
-
         self.form_fields = fields
         self.form = form
         self.request = request
+
+        super(FormWidgets, self).__init__()
 
     def fields(self):
         return self.fieldset.fields()
