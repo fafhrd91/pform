@@ -4,9 +4,17 @@ CHANGES
 0.5.1 (Unreleased)
 ------------------
 
+- Added `GroupingField`
+
 - BaseMultiChoiceField.missing value is [] by default
 
 - copy field missing value during fieldset data extraction
+
+- Fixed form csrf support
+
+- Fixed 'checked' value for radio field
+
+- Do not use missing value if value is not validation
 
 
 0.5 (12-21-2012)

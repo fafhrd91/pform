@@ -134,14 +134,11 @@ class Fieldset(OrderedDict):
 
             try:
                 field.validate(value)
-                if field.preparer is not None:
-                    value = field.preparer(value)
             except Invalid as e:
-                value = null
-                if field.missing is not null:
-                    value = copy.copy(field.missing)
-
                 errors.append(e)
+
+            if field.preparer is not None:
+                value = field.preparer(value)
 
             if field.flat:
                 data.update(value)

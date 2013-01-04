@@ -78,7 +78,7 @@ class BaseChoiceField(VocabularyField):
             raise Invalid(self.error_msg, self, {'val': value})
 
     def is_checked(self, term):
-        return term.token == self.form_value
+        return 'checked' if term.token == self.form_value else None
 
     def update(self):
         super(BaseChoiceField, self).update()
@@ -137,7 +137,7 @@ class BaseMultiChoiceField(VocabularyField):
         return value
 
     def is_checked(self, term):
-        return term.token in self.form_value
+        return 'checked' if term.token in self.form_value else None
 
     def update(self):
         super(BaseMultiChoiceField, self).update()
@@ -397,7 +397,6 @@ class RadioField(BaseChoiceField):
     tmpl_input = 'form:radio'
 
 
-
 @field('bool')
 class BoolField(BaseChoiceField):
     """Boolean input widget. Field name is ``bool``."""
@@ -429,7 +428,7 @@ class ChoiceField(BaseChoiceField):
                 'name': self.name,
                 'value': self.no_value_token,
                 'label': self.prompt_message,
-                'checked': self.form_value is null,
+                'checked': 'checked' if self.form_value is null else None,
                 'description': '',
             })
 

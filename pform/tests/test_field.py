@@ -31,7 +31,7 @@ class TestField(BaseTestCase):
         self.assertEqual(field.validator, 'validator')
         self.assertEqual(field.custom_attr, 'Custom attr')
 
-        self.assertEqual(repr(field), "<Field 'test'>")
+        self.assertEqual(repr(field), "Field<test>")
 
     def test_field_bind(self):
         orig_field = pform.Field(
@@ -61,7 +61,7 @@ class TestField(BaseTestCase):
         self.assertIsNone(field.context)
         self.assertIsNone(orig_field.context)
 
-        self.assertEqual(repr(field), "<Field 'field.test'>")
+        self.assertEqual(repr(field), "Field<field.test>")
 
         context = object()
         field = orig_field.bind(object(), 'field.', pform.null, {}, context)

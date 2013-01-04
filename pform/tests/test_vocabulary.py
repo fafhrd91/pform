@@ -93,6 +93,7 @@ class VocabularyTests(TestCase):
         t = vocabulary.Term(1, "One")
         self.assertEqual(t.value, 1)
         self.assertEqual(t.token, "One")
+        self.assertEqual(repr(t), 'Term<"1:One:1">')
 
     def test_term_ctor_title(self):
         t = vocabulary.Term(1)
@@ -127,6 +128,10 @@ class VocabularyTests(TestCase):
             for term in v:
                 self.assert_(v.get_term(term.value) is term)
                 self.assert_(v.get_term_bytoken(term.token) is term)
+
+    def test_getitem(self):
+        t = self.list_vocab[0]
+        self.assertIs(t, self.list_vocab.get_term(1))
 
     def test_getvalue(self):
         self.assertEqual(self.items_vocab.get_value('one'), 1)

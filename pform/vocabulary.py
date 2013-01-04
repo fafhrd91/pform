@@ -23,6 +23,11 @@ class Term(object):
         self.title = title
         self.description = description
 
+    def __str__(self):
+        return 'Term<"%s:%s:%s">'%(self.value, self.token, self.title)
+
+    __repr__ = __str__
+
 
 @implementer(IVocabulary)
 class Vocabulary(object):
@@ -96,3 +101,6 @@ class Vocabulary(object):
 
     def __len__(self):
         return len(self.by_value)
+
+    def __getitem__(self, index):
+        return self._terms[index]

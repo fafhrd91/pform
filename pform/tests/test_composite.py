@@ -73,6 +73,33 @@ class TestCompositeField(BaseTestCase):
         result = widget.extract()
         self.assertEqual({'lastname': '', 'firstname': 'Nikolay'}, result)
 
+    def test_extract_missing(self):
+        """ Extract returns missing """
+        fields=(pform.TextField('firstname', missing='name'),
+                pform.TextField('lastname'))
+
+        field = pform.CompositeField('test', fields=fields)
+
+        widget = field.bind(self.request, '', None, {})
+
+        result = widget.extract()
+        self.assertEqual({'lastname': fields[1].missing,
+                          'firstname': fields[0].missing}, result)
+
+    def test_form_extract_missing(self):
+        """ Extract form data, composite field no data """
+        fields=(pform.TextField('firstname', missing='name'),
+                pform.TextField('lastname'))
+
+        field = pform.CompositeField('test', fields=fields)
+
+        form = pform.Form(object(), self.request, fields=(field,))
+        form.update_form()
+
+        data, errors = form.extract()
+        self.assertEqual({'lastname': fields[1].missing,
+                          'firstname': fields[0].missing}, data['test'])
+
     def test_validate(self):
         """ Validate data """
         field = pform.CompositeField(

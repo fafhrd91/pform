@@ -1,15 +1,22 @@
 import os
+import sys
 from setuptools import setup, find_packages
 
 version = '0.5.1'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4',
-                    'pyramid_amdjs',
+                    'pyramid_amdjs >= 0.3',
                     'pyramid_jinja2',
                     'player >= 0.6',
                     'pytz',
                     ]
+
+if sys.version_info[:2] == (2, 6):
+    install_requires.extend((
+        'argparse',
+        'ordereddict',
+        'unittest2'))
 
 tests_require = install_requires + ['nose', 'mock']
 
@@ -25,6 +32,7 @@ setup(name='pform',
       classifiers=[
           "Intended Audience :: Developers",
           "Programming Language :: Python",
+          "Programming Language :: Python :: 2.6",
           "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.2",

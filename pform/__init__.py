@@ -9,7 +9,7 @@ __all__ = [
 
     'All','Function','Regex','Email','Range', 'Length','OneOf',
 
-    'InputField', 'CompositeField',
+    'InputField', 'CompositeField', 'GroupingField',
     'VocabularyField', 'BaseChoiceField','BaseMultiChoiceField',
 
     'TextField','IntegerField','FloatField',
@@ -24,6 +24,14 @@ __all__ = [
 
     'parse_date','includeme', 'reify',
 ]
+
+try:
+    from collections import OrderedDict
+except ImportError: # pragma: no cover
+    import collections
+    from ordereddict import OrderedDict
+    collections.OrderedDict = OrderedDict
+
 
 from pyramid.decorator import reify
 
@@ -48,11 +56,6 @@ from pform.directives import get_field_preview
 from pform.vocabulary import Term
 from pform.vocabulary import Vocabulary
 
-SimpleTerm = Term
-SimpleVocabulary = Vocabulary
-SimpleVocabulary.from_items = SimpleVocabulary
-SimpleVocabulary.from_values = SimpleVocabulary
-
 # validators
 from pform.validator import All
 from pform.validator import Function
@@ -64,7 +67,11 @@ from pform.validator import OneOf
 
 # helper class
 from pform.field import InputField
-from pform.composite import CompositeField
+
+# helper field classes
+from pform.fields import VocabularyField
+from pform.fields import BaseChoiceField
+from pform.fields import BaseMultiChoiceField
 
 # fields
 from pform.fields import TextField
@@ -84,10 +91,9 @@ from pform.fields import MultiChoiceField
 from pform.fields import MultiSelectField
 from pform.fields import TimezoneField
 
-# helper field classes
-from pform.fields import VocabularyField
-from pform.fields import BaseChoiceField
-from pform.fields import BaseMultiChoiceField
+# composite fields
+from pform.composite import CompositeField
+from pform.grouping import GroupingField
 
 # forms
 from pform.form import Form

@@ -68,9 +68,15 @@ class MyForm(pform.Form):
                             'country': 'KZ'},
                 'description': 'Context description'}
 
-    @pform.button2('Update', actype=pform.AC_PRIMARY)
-    def update_handler(self, data):
+    @pform.button('Update', actype=pform.AC_PRIMARY)
+    def update_handler(self):
+        data, errors = self.extract()
+
         pprint(data)
+        pprint(errors)
+        if errors:
+            self.add_error_message(errors)
+            return
 
         self.request.add_message('Content has been updated.')
         return HTTPFound(location='/')

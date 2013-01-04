@@ -283,7 +283,7 @@ class TestFieldsetErrors(BaseTestCase):
         self.assertEqual(errors.msg, {'test': 'error1', 'test1': 'error2'})
 
         self.assertEqual(str(err1), "error1")
-        self.assertEqual(repr(err1), "Invalid(<TextField 'test'>: <error1>)")
+        self.assertEqual(repr(err1), "Invalid(TextField<test>: error1)")
         self.assertEqual(str(pform.null), '<widget.null>')
 
     def test_fieldset_contains_by_fieldname(self):

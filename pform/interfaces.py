@@ -45,8 +45,7 @@ class Invalid(Exception):
         return get_localizer(request).translate(self.msg, mapping=self.mapping)
 
     def __repr__(self):
-        return 'Invalid%s(%s: <%s>)' % (
-            ':%s'%self.name if self.name else '', self.field, self.msg)
+        return 'Invalid(%s: %s)' % (self.field or self.name or '', self.msg)
 
     def __contains__(self, name):
         """ Check for subexception """

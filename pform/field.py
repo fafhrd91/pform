@@ -74,8 +74,8 @@ class _Field(object):
         self.__dict__.update(kw)
 
         self.name = name
-        self.title = kw.get('title', name.capitalize())
-        self.description = kw.get('description', '')
+        self.title = kw.get('title', self.title or name.capitalize())
+        self.description = kw.get('description', self.description)
         self.readonly = kw.get('readonly', None)
         self.default = kw.get('default', self.default)
         self.preparer = kw.get('preparer', None)
@@ -162,7 +162,7 @@ class _Field(object):
                       view=self, value=self.form_value)
 
     def __repr__(self):
-        return '<%s %r>' % (self.__class__.__name__, self.name)
+        return '%s<%s>' % (self.__class__.__name__, self.name)
 
 
 # Field metaclass
