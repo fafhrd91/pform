@@ -1,8 +1,8 @@
 pform
 =====
 
-.. image :: https://secure.travis-ci.org/fafhrd91/pform.png
-  :target:  https://secure.travis-ci.org/fafhrd91/pform
+.. image :: https://travis-ci.org/fafhrd91/pform.png
+  :target:  https://travis-ci.org/fafhrd91/pform
 
 
 Simple form example
@@ -116,7 +116,7 @@ https://github.com/fafhrd91/pform/tree/master/examples
 Requirements
 ------------
 
-- Python 2.7+ or Python 3.2+
+- Python 2.6+ or Python 3.2+
 
 - virtualenv
 
