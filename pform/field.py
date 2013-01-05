@@ -70,11 +70,11 @@ class _Field(object):
     tmpl_widget = None
 
 
-    def __init__(self, name, **kw):
+    def __init__(self, name=None, **kw):
         self.__dict__.update(kw)
 
-        self.name = name
-        self.title = kw.get('title', self.title or name.capitalize())
+        self.name = name or self.name
+        self.title = kw.get('title', self.title)
         self.description = kw.get('description', self.description)
         self.readonly = kw.get('readonly', None)
         self.default = kw.get('default', self.default)
@@ -137,11 +137,11 @@ class _Field(object):
 
     def validate(self, value):
         """ validate value """
-        if self.typ is not None and not isinstance(value, self.typ):
-            raise Invalid(self.error_wrong_type, self)
-
         if self.required and (value == self.missing or value is null):
             raise Invalid(self.error_required, self)
+
+        if self.typ is not None and not isinstance(value, self.typ):
+            raise Invalid(self.error_wrong_type, self)
 
         if self.validator is not None:
             self.validator(self, value)
@@ -215,7 +215,7 @@ class InputField(Field):
 
     def get_html_attrs(self, **kw):
         attrs = OrderedDict()
-        attrs['class'] = getattr(self, 'klass', None)
+        attrs['class'] = kw.get('klass', getattr(self, 'klass', None))
         attrs['value'] = kw.get('value', self.form_value)
         for name in self.html_attrs:
             val = getattr(self, name, None)

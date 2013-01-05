@@ -1,10 +1,47 @@
-{% for field in context.fields.values() %}
-{% set error = field.error %}
-<div {{{'class': 'error' if error else None}|xmlattr}}>
-  {{field.render()|safe}}
-  {% if error %}
-    <span class="help-inline">{{error|safe}}</span>
-  {% endif %}
-  <span class="help-block">{{field.description|safe}}</span>
-</div>
-{% endfor %}
+{% if context.inline %}
+  <div class="controls-row">
+    {% for field in context.fields.values() %}
+      <small>{{field.title|safe}}</small>
+
+      {% if field.error %}
+        <span class="error">
+          {{field.render()|safe}}
+        </span>
+      {% else %}
+        {{field.render()|safe}}
+      {% endif %}
+    {% endfor %}
+
+    {% if context.error and not context.consolidate_errors %}
+    <p class="help-block">
+      {% for field in context.fields.values() %}
+        {% if field.error %}
+          <span class="text-error">
+            {{field.title|safe}}: {{field.error|safe}}
+          </span><br>
+          {% endif %}  
+      {% endfor %}
+    </p>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="clearfix"></div>
+
+  {% for field in context.fields.values() %}
+  <div{{{'class': 'control-group error' if field.error else None}|xmlattr}}>
+    <label class="control-label"
+           for="{{field.id}}" title="{{field.description}}">
+      <small class="muted">
+        {{field.title|safe}} {%if field.required %}*{%endif%}
+      </small>
+    </label>
+    <div class="controls">
+      {{field.render()|safe}}
+      {% if field.error %}
+        <span class="help-inline">{{field.error|safe}}</span>
+      {% endif %}
+      <p class="help-block"></p>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}

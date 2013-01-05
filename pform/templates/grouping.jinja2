@@ -1,10 +1,8 @@
-<div class="control-group">
-  <label class="control-label">{{context.title|safe}}</label>
-  <div class="clearfix"></div>
+<div class="clearfix"></div>
 
-  {% set grouping = context.fields[context.key_name] %}
+{% set grouping = context.fields[context.key_name] %}
 
-  {% for item in grouping.items %}
+{% for item in grouping.items %}
   {% set field = context.fields[item['value']] %}
   <div{{{'class': 'control-group error' if field.error else None}|xmlattr}}>
     <label class="control-label"
@@ -16,17 +14,8 @@
       {{field.render()|safe}}
       {% if field.error %}
         <span class="help-inline">{{field.error|safe}}</span>
-      {% elif field.required %}
-        *
       {% endif %}
       <p class="help-block"></p>
     </div>
   </div>
-  {% endfor %}
-
-  {% if context.description %}
-  <div class="controls">
-    <p class="help-block">{{context.description|safe}}</p>
-  </div>
-  {% endif %}
-</div>
+{% endfor %}

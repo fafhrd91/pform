@@ -42,7 +42,7 @@ class TestInputField(BaseTestCase):
 class TestTextField(BaseTestCase):
 
     def _makeOne(self, name, **kw):
-        return pform.TextField(name, **kw)
+        return pform.TextField(name, title=name.capitalize(), **kw)
 
     def test_fields_text(self):
         request = self.make_request()
@@ -72,7 +72,7 @@ class TestTextField(BaseTestCase):
 class TestIntegerField(BaseTestCase):
 
     def _makeOne(self, name, **kw):
-        return pform.IntegerField(name, **kw)
+        return pform.IntegerField(name, title=name.capitalize(), **kw)
 
     def test_fields_int(self):
         request = self.make_request()
@@ -97,7 +97,7 @@ class TestIntegerField(BaseTestCase):
 class TestFloatField(BaseTestCase):
 
     def _makeOne(self, name, **kw):
-        return pform.FloatField(name, **kw)
+        return pform.FloatField(name, title=name.capitalize(), **kw)
 
     def test_fields_float(self):
         request = self.make_request()
@@ -122,7 +122,7 @@ class TestFloatField(BaseTestCase):
 class TestDeciamlField(BaseTestCase):
 
     def _makeOne(self, name, **kw):
-        return pform.DecimalField(name, **kw)
+        return pform.DecimalField(name, title=name.capitalize(), **kw)
 
     def test_fields_decimal(self):
         request = self.make_request()
@@ -147,7 +147,7 @@ class TestDeciamlField(BaseTestCase):
 class TestLinesField(BaseTestCase):
 
     def _makeOne(self, name, **kw):
-        return pform.LinesField(name, **kw)
+        return pform.LinesField(name, title=name.capitalize(), **kw)
 
     def test_fields_decimal(self):
         request = self.make_request()

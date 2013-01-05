@@ -21,11 +21,14 @@ class CompositeField(Field):
     """ Composit field """
 
     fields = None
-    tmpl_input = None
-    tmpl_widget = null
+    tmpl_input = 'form:composite'
+    tmpl_widget = 'form:widget-composite'
 
-    def __init__(self, name, **kw):
-        super(CompositeField, self).__init__(name, **kw)
+    inline = False
+    consolidate_errors = False
+
+    def __init__(self, *args, **kw):
+        super(CompositeField, self).__init__(*args, **kw)
 
         if not self.fields:
             raise ValueError('Fields are required for composite field.')
@@ -34,20 +37,6 @@ class CompositeField(Field):
             self.fields = Fieldset(*self.fields)
 
         self.fields.prefix = '%s.'%self.name
-
-    def render(self):
-        tmpl = self.tmpl_input or 'form:composite'
-        return render(self.request, tmpl, self,
-                      view=self, value=self.form_value)
-
-    def render_widget(self):
-        if self.tmpl_input is None:
-            tmpl = self.tmpl_widget or 'form:widget-composite'
-        else:
-            tmpl = self.tmpl_widget or 'form:widget'
-
-        return render(self.request, tmpl, self,
-                      view=self, value=self.form_value)
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
@@ -90,7 +79,10 @@ class CompositeField(Field):
                     field.error = error
 
         if errors:
-            raise CompositeError(field=self, errors=errors)
+            if self.consolidate_errors:
+                raise CompositeError(errors[0].msg, field=self)
+            else:
+                raise CompositeError(field=self, errors=errors)
 
         return result
 
@@ -108,7 +100,10 @@ class CompositeField(Field):
                     field.error = error
 
         if errors:
-            raise CompositeError(field=self, errors=errors)
+            if self.consolidate_errors:
+                raise CompositeError(errors[0].msg, field=self)
+            else:
+                raise CompositeError(field=self, errors=errors)
 
         if self.validator is not None:
             self.validator(self, value)

@@ -156,7 +156,8 @@ class TestCompositeField(BaseTestCase):
 
     def test_render_widget(self):
         """ Composite field render widget """
-        field = pform.CompositeField('test', fields=(pform.TextField('name'),))
+        field = pform.CompositeField(
+            'test', title='Test', fields=(pform.TextField('name'),))
 
         widget = field.bind(self.request, '', None,
                             {'test.name': 'Nikolay'})
@@ -164,7 +165,7 @@ class TestCompositeField(BaseTestCase):
 
         res = widget.render_widget()
         self.assertIn(
-            '<label class="control-label">Test</label>', res)
+            '<label class="control-label">Test', res)
         self.assertIn(
             '<input type="text" class="text-widget" value="Nikolay"', res)
 
@@ -182,7 +183,8 @@ class TestCompositeField(BaseTestCase):
 
     def test_render(self):
         """ Composite field render """
-        field = pform.CompositeField('test', fields=(pform.TextField('name'),))
+        field = pform.CompositeField(
+            'test', fields=(pform.TextField('name', title='Name'),))
 
         widget = field.bind(self.request, '', None,
                             {'test.name': 'Nikolay'})

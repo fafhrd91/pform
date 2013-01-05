@@ -18,8 +18,8 @@ class VocabularyField(InputField):
 
     no_value_token = '--NOVALUE--'
 
-    def __init__(self, name, **kw):
-        super(VocabularyField, self).__init__(name, **kw)
+    def __init__(self, *args, **kw):
+        super(VocabularyField, self).__init__(*args, **kw)
 
         if self.voc_factory is None and self.vocabulary is None:
             raise ValueError("Vocabulary or vocabulary factory is required.")
@@ -392,6 +392,7 @@ class RadioField(BaseChoiceField):
     """HTML Radio input widget. Field name is ``radio``."""
 
     klass = 'radio-widget'
+    inline = False
     html_type = 'radio'
     html_attrs = BaseChoiceField.html_attrs + ('checked',)
     tmpl_input = 'form:radio'
