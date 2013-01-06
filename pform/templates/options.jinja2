@@ -1,14 +1,16 @@
 <div class="clearfix"></div>
 
-{% set grouping = context.fields[context.key_name] %}
+{% set options = context.fields[context.key] %}
 
-{% for item in grouping.items %}
+{% for item in options.items %}
   {% set field = context.fields[item['value']] %}
   <div{{{'class': 'control-group error' if field.error else None}|xmlattr}}>
     <label class="control-label"
            for="{{field.id}}" title="{{field.description}}">
-      <small class="muted">{{field.title|safe}}</small>
-      <input type="radio" {{grouping.get_html_attrs(**item)|xmlattr}}>
+      <small class="muted">
+        {{field.title|safe}} {%if field.required %}*{%endif%}
+      </small>
+      <input type="radio" {{options.get_html_attrs(**item)|xmlattr}}>
     </label>
     <div class="controls">
       {{field.render()|safe}}

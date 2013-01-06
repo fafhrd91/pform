@@ -2,7 +2,6 @@
 import re
 import sys
 import binascii
-from player import render
 from collections import OrderedDict
 from pform.field import InputField
 

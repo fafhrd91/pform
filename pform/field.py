@@ -47,6 +47,8 @@ class _Field(object):
     title = ''
     description = ''
     flat = False
+    preparer = None
+    validator = None
 
     default = null
     required = True
@@ -65,6 +67,7 @@ class _Field(object):
 
     id = None
     typ = None
+    readonly = None
 
     tmpl_input = None
     tmpl_widget = None
@@ -74,12 +77,6 @@ class _Field(object):
         self.__dict__.update(kw)
 
         self.name = name or self.name
-        self.title = kw.get('title', self.title)
-        self.description = kw.get('description', self.description)
-        self.readonly = kw.get('readonly', None)
-        self.default = kw.get('default', self.default)
-        self.preparer = kw.get('preparer', None)
-        self.validator = kw.get('validator', None)
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
@@ -149,6 +146,10 @@ class _Field(object):
     def extract(self):
         """ extract value from params """
         return self.params.get(self.name, null)
+
+    def flatten(self, value):
+        """ """
+        return {self.name: value}
 
     def render(self):
         """ render field """

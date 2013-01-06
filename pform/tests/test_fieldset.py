@@ -339,7 +339,6 @@ class TestFieldsetErrors(BaseTestCase):
         fieldset = pform.Fieldset(f)
         errors = pform.FieldsetErrors(fieldset)
 
-        err = pform.Invalid('error')
         errors.append(('field', 'error'))
 
         self.assertIn('field', errors)

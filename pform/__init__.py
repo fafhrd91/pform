@@ -9,7 +9,9 @@ __all__ = [
 
     'All','Function','Regex','Email','Range', 'Length','OneOf',
 
-    'InputField', 'CompositeField', 'GroupingField',
+    'CompositeField', 'CompositeError',
+
+    'InputField', 'OptionsField',
     'VocabularyField', 'BaseChoiceField','BaseMultiChoiceField',
 
     'TextField','IntegerField','FloatField',
@@ -27,11 +29,12 @@ __all__ = [
 
 try:
     from collections import OrderedDict
+    OrderedDict
 except ImportError: # pragma: no cover
     import collections
     from ordereddict import OrderedDict
     collections.OrderedDict = OrderedDict
-
+    OrderedDict
 
 from pyramid.decorator import reify
 
@@ -90,10 +93,11 @@ from pform.fields import ChoiceField
 from pform.fields import MultiChoiceField
 from pform.fields import MultiSelectField
 from pform.fields import TimezoneField
+from pform.fields import OptionsField
 
 # composite fields
 from pform.composite import CompositeField
-from pform.grouping import GroupingField
+from pform.composite import CompositeError
 
 # forms
 from pform.form import Form

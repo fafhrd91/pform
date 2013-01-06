@@ -1,14 +1,14 @@
 CHANGES
 =======
 
-0.5.1 (Unreleased)
-------------------
+0.6 (Unreleased)
+----------------
 
-- Added `GroupingField`
+- Added `OptionsField`
 
 - BaseMultiChoiceField.missing value is [] by default
 
-- copy field missing value during fieldset data extraction
+- Copy field missing value during fieldset data extraction
 
 - Fixed form csrf support
 

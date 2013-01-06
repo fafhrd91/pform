@@ -1,9 +1,8 @@
 """ Composite Field """
 import copy
 import pprint
-from player import render
+from pyramid.decorator import reify
 
-import pform
 from pform.field import Field
 from pform.fieldset import Fieldset
 from pform.interfaces import null, Invalid
@@ -12,8 +11,9 @@ from pform.interfaces import null, Invalid
 class CompositeError(Invalid):
 
     def __repr__(self):
+        n = self.field.name if self.field else ''
         return 'CompositeError<%s%s>:\n%s' % (
-            self.field.name, ': %s'%self.msg if self.msg else '',
+            n, ': %s'%self.msg if self.msg else '',
             pprint.pformat(self.errors, 4))
 
 
@@ -37,6 +37,13 @@ class CompositeField(Field):
             self.fields = Fieldset(*self.fields)
 
         self.fields.prefix = '%s.'%self.name
+
+    @reify
+    def default(self):
+        return dict(
+            [(name,
+              field.default if field.default is not null else field.missing)
+             for name, field in self.fields.items()])
 
     def bind(self, request, prefix, value, params, context=None):
         """ Bind field to value and request params """
@@ -116,5 +123,12 @@ class CompositeField(Field):
                 val = copy.copy(field.missing)
 
             value[name] = val
+
+        return value
+
+    def flatten(self, value):
+        for name, field in self.fields.items():
+            if field.flat and name in value:
+                value.update(field.flatten(value.pop(name)))
 
         return value

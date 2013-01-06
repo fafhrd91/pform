@@ -7,7 +7,9 @@ from pyramid.compat import NativeIO, text_type, PY3
 from pform import iso8601
 from pform import vocabulary
 from pform.field import InputField
+from pform.fieldset import Fieldset
 from pform.directives import field
+from pform.composite import CompositeField
 from pform.interfaces import _, null, Invalid, IVocabulary
 
 
@@ -478,3 +480,70 @@ class TimezoneField(ChoiceField):
                 return pytz.timezone(self._tzs[v])
         except:
             raise Invalid(self.error_msg, self, {'val': value})
+
+
+class OptionsField(CompositeField):
+    """ Options field
+
+    ``key``: Name of group key name
+
+    ``defaults``: Build defaults for unselected groups
+
+    ``extract_all``: Extract values for all groups
+
+    """
+
+    key = ''
+    defaults = False
+    extract_all = False
+    tmpl_input = 'form:options'
+
+    def __init__(self, *args, **kw):
+        super(OptionsField, self).__init__(*args, **kw)
+
+        voc = vocabulary.Vocabulary(
+            *[vocabulary.Term(fname, fname, field.title)
+              for fname, field in self.fields.items()])
+
+        if not self.key:
+            self.key = self.name
+
+        self.fields = Fieldset(
+            RadioField(
+                self.key,
+                missing = voc[0].value,
+                default = voc[0].value,
+                required = False,
+                vocabulary = voc)) + self.fields
+
+    def to_field(self, value):
+        value = super(OptionsField, self).to_field(value)
+
+        if self.defaults:
+            for name, f in self.fields.items():
+                if name not in value:
+                    value[name] = (f.default
+                                   if f.default is not null else f.missing)
+
+        return value
+
+    def validate(self, value):
+        key = value.get(self.key)
+
+        if key not in self.fields:
+            key = self.fields[self.key].default
+
+        super(OptionsField, self).validate(
+            {key: value.get(key, self.fields[key].missing)})
+
+    def extract(self):
+        value = super(OptionsField, self).extract()
+
+        if not self.extract_all:
+            opotion = value[self.key]
+            if opotion in value:
+                return {self.key: opotion, opotion: value[opotion]}
+            else:
+                return {}
+
+        return value

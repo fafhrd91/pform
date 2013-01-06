@@ -714,3 +714,129 @@ class TestFileField(BaseTestCase):
             field.validate({'fp': fp})
 
         self.assertEqual('Maximum file size exceeded.', cm.exception.msg)
+
+
+class TestOptionsField(BaseTestCase):
+
+    def test_ctor(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+        self.assertEqual('test', field.key)
+
+        field = pform.OptionsField(
+            'test', key='option_key',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        self.assertEqual('option_key', field.key)
+        self.assertEqual(3, len(field.fields))
+        self.assertIn('option_key', field.fields)
+
+        ofield = field.fields['option_key']
+        self.assertIsInstance(ofield, pform.RadioField)
+
+        self.assertEqual(2, len(ofield.vocabulary))
+        self.assertEqual(
+            ['name', 'address'], [t.value for t in ofield.vocabulary])
+
+    def test_to_field(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        self.assertEqual({'name': '123'},
+                         field.to_field({'name': '123'}))
+
+
+    def test_to_field_with_defaults(self):
+        field = pform.OptionsField(
+            'test',
+            defaults=True,
+            fields=(pform.TextField('name'),
+                    pform.TextField('address', default='street 123')))
+
+        self.assertEqual({'name':'123', 'address':'street 123', 'test':'name'},
+                         field.to_field({'name': '123'}))
+
+    def test_extract(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        field = field.bind(
+            self.request, '', {},
+            {'test': 'name',
+             'name': 'nikolay',
+             'address': 'street 123'})
+
+        self.assertEqual({'name': 'nikolay', 'test': 'name'}, field.extract())
+
+    def test_extract_all(self):
+        field = pform.OptionsField(
+            'test', extract_all=True,
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        field = field.bind(
+            self.request, '', {},
+            {'test': 'name',
+             'name': 'nikolay',
+             'address': 'street 123'})
+
+        self.assertEqual(
+            {'name': 'nikolay', 'address': 'street 123', 'test': 'name'},
+            field.extract())
+
+    def test_extract_unknown_option(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        field = field.bind(
+            self.request, '', {},
+            {'test': 'unknown',
+             'name': 'nikolay',
+             'address': 'street 123'})
+
+        self.assertEqual({}, field.extract())
+
+    def test_validate(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        with self.assertRaises(pform.CompositeError) as cm:
+            field.validate({})
+
+        self.assertIn('name', cm.exception)
+
+    def test_validate_(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        with self.assertRaises(pform.CompositeError) as cm:
+            field.validate({'test': 'address', 'name': '123'})
+
+        self.assertIn('address', cm.exception)
+
+    def test_render(self):
+        field = pform.OptionsField(
+            'test',
+            fields=(pform.TextField('name'),
+                    pform.TextField('address')))
+
+        field = field.bind(
+            self.request, '', {},
+            {'test': 'test',
+             'name': 'nikolay',
+             'address': 'street 123'})
+
+        field.render_widget()

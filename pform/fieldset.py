@@ -141,7 +141,7 @@ class Fieldset(OrderedDict):
                 value = field.preparer(value)
 
             if field.flat:
-                data.update(value)
+                data.update(field.flatten(value))
             else:
                 data[field.name[self.lprefix:]] = value
 

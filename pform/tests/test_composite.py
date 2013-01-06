@@ -1,6 +1,18 @@
 import mock
 import pform
-from base import BaseTestCase
+from base import TestCase, BaseTestCase
+
+
+class TestCompositeError(TestCase):
+    """ Tests for pform.CompositeError """
+
+    def test_type(self):
+        self.assertTrue(
+            issubclass(pform.CompositeError, pform.Invalid))
+
+    def test_repr(self):
+        err = pform.CompositeError('test')
+        self.assertEqual('CompositeError<: test>:\n{   }', repr(err))
 
 
 class TestCompositeField(BaseTestCase):
@@ -17,6 +29,33 @@ class TestCompositeField(BaseTestCase):
             'test', fields=(pform.TextField('firstname'),
                             pform.TextField('lastname')))
         self.assertIsInstance(field.fields, pform.Fieldset)
+
+    def test_default(self):
+        """ Default composite field value """
+        field = pform.CompositeField(
+            'test', fields=(pform.TextField('firstname'),
+                            pform.TextField('lastname')))
+        self.assertEqual(
+            {'lastname': '', 'firstname': ''}, field.default)
+
+    def test_default_from_fields(self):
+        """ Set default composite field value """
+        field = pform.CompositeField(
+            'test',
+            fields=(pform.TextField('firstname',default='1'),
+                    pform.TextField('lastname', default='2')))
+        self.assertEqual(
+            {'lastname': '2', 'firstname': '1'}, field.default)
+
+    def test_set_default(self):
+        """ Set default composite field value """
+        field = pform.CompositeField(
+            'test',
+            default={'firstname': '123'},
+            fields=(pform.TextField('firstname'),
+                    pform.TextField('lastname')))
+        self.assertEqual(
+            {'firstname': '123'}, field.default)
 
     def test_ctor_fields_prefix(self):
         """ Composite field uses custom fields prefix """
@@ -51,6 +90,19 @@ class TestCompositeField(BaseTestCase):
 
         widget = field.bind(self.request, '', {'firstname': 'Nikolay'}, {})
         self.assertEqual('Nikolay', widget.fields['firstname'].value)
+
+    def test_bind_flat_fields(self):
+        """ Composite field bind flat fields """
+        field = pform.CompositeField(
+            'test', fields=(
+                pform.CompositeField(
+                    'sub', flat=True, fields=(pform.TextField('firstname'),)),
+                pform.TextField('lastname')))
+
+        widget = field.bind(self.request, '',
+                            {'firstname': 'Nikolay', 'lastname': 'Kim'}, {})
+        self.assertEqual(
+            'Nikolay', widget.fields['sub'].fields['firstname'].value)
 
     def test_set_id_prefix(self):
         """ Composite field sets id for subfields """
@@ -113,6 +165,21 @@ class TestCompositeField(BaseTestCase):
         self.assertEqual(1, len(err.errors))
         self.assertIn('lastname', err)
 
+    def test_validate_consolidate_errs(self):
+        """ Validate data (consolidate_errors) """
+        field = pform.CompositeField(
+            'test',
+            consolidate_errors=True,
+            fields=(pform.TextField('firstname'),
+                    pform.TextField('lastname')))
+
+        with self.assertRaises(pform.Invalid) as cm:
+            field.validate({'lastname':'', 'firstname': 'Nikolay'})
+
+        err = cm.exception
+        self.assertEqual(0, len(err.errors))
+        self.assertIn('Required', err.msg)
+
     def test_custom_validator(self):
         """ Custom validator """
         v = mock.Mock()
@@ -135,6 +202,20 @@ class TestCompositeField(BaseTestCase):
 
         self.assertIn('age', cm.exception)
 
+    def test_to_field_exception_consolidate_errs(self):
+        """ Composite field, convert form data to field data with error (consolidate) """
+        field = pform.CompositeField(
+            'test',
+            consolidate_errors = True,
+            fields=(pform.TextField('name'),
+                    pform.IntegerField('age')))
+
+        with self.assertRaises(pform.Invalid) as cm:
+            field.to_field({'name': 'Nikolay', 'age': 'www'})
+
+        self.assertNotIn('age', cm.exception)
+        self.assertEqual('"${val}" is not a number', cm.exception.msg)
+
     def test_to_field(self):
         """ Composite field, convert form data to field data """
         field = pform.CompositeField(
@@ -153,6 +234,31 @@ class TestCompositeField(BaseTestCase):
         widget.update()
 
         self.assertEqual('Nikolay', widget.fields['name'].form_value)
+
+    def test_flatten(self):
+        """ Composite field, flatten """
+        field = pform.CompositeField(
+            'test', fields=(pform.TextField('name'),
+                            pform.TextField('age'),))
+
+        self.assertEqual({'name':'n', 'age': '123'},
+                         field.flatten({'name':'n', 'age': '123'}))
+
+        self.assertEqual({'name':'n', 'age': '123', 'extra':'1'},
+                         field.flatten({'name':'n', 'age': '123','extra':'1'}))
+
+    def test_flatten_recursive(self):
+        """ Composite field, recursive flatten """
+        field = pform.CompositeField(
+            'test', fields=(
+                pform.TextField('name'),
+                pform.CompositeField(
+                    'address', flat=True,
+                    fields=(pform.TextField('street'),))))
+
+        self.assertEqual(
+            field.flatten({'name':'n', 'address': {'street':'123'}}),
+            {'name':'n', 'street': '123'})
 
     def test_render_widget(self):
         """ Composite field render widget """

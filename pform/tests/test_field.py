@@ -180,6 +180,9 @@ class TestField(BaseTestCase):
         widget.update()
         self.assertIs(widget.form_value, None)
 
+    def test_field_flatten(self):
+        self.assertEqual({'test': 'val'}, pform.Field('test').flatten('val'))
+
     def test_field_get_error(self):
         err = pform.Invalid('error')
 

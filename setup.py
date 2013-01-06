@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-version = '0.5.1'
+version = '0.6'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4',
@@ -14,7 +14,6 @@ install_requires = ['setuptools',
 
 if sys.version_info[:2] == (2, 6):
     install_requires.extend((
-        'argparse',
         'ordereddict',
         'unittest2'))
 
