@@ -12,7 +12,7 @@ class TestCompositeError(TestCase):
 
     def test_repr(self):
         err = pform.CompositeError('test')
-        self.assertEqual('CompositeError<: test>:\n{   }', repr(err))
+        self.assertIn('CompositeError<: test>:\n{', repr(err))
 
 
 class TestCompositeField(BaseTestCase):
