@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-0.6 (Unreleased)
+0.6 (01-07-2013)
 ----------------
 
 - Added `OptionsField`
