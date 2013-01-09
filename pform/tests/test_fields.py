@@ -1,3 +1,4 @@
+import mock
 import decimal
 from webob.multidict import MultiDict
 from pyramid.compat import text_type, NativeIO
@@ -204,8 +205,8 @@ class TestVocabularyField(BaseTestCase):
 
         voc = object()
         data = []
-        def factory(context):
-            data.append(context)
+        def factory(c):
+            data.append(c)
             return voc
 
         field = VocabularyField('test', voc_factory=factory)
@@ -215,6 +216,56 @@ class TestVocabularyField(BaseTestCase):
         context = object()
         field.bind(self.request, 'p.', None, None, context)
         self.assertIs(data[-1], context)
+
+    def test_voc_factory_mapper(self):
+        from pform.fields import voc_factory_mapper
+        m = mock.Mock()
+
+        ob = object()
+        m.request = ob
+        def fn(request):
+            return request
+
+        self.assertIs(ob, voc_factory_mapper(fn)(m))
+
+        ob = object()
+        m.context = ob
+        def fn(context):
+            return context
+
+        self.assertIs(ob, voc_factory_mapper(fn)(m))
+
+        ob = object()
+        m.content = ob
+        def fn(content):
+            return content
+
+        self.assertIs(ob, voc_factory_mapper(fn)(m))
+
+        ob = object()
+        m.content = ob
+        def fn(arg):
+            return arg
+
+        self.assertIs(m, voc_factory_mapper(fn)(m))
+
+    def test_takes_one_arg(self):
+        from pform.fields import takes_one_arg
+        def fn(arg):
+            return arg
+
+        self.assertTrue(takes_one_arg(fn, 'arg'))
+        self.assertFalse(takes_one_arg(fn, 'context'))
+
+    @mock.patch('pform.fields.inspect')
+    def test_takes_one_arg(self, m_inspect):
+        m_inspect.getargspec.side_effect = TypeError
+
+        from pform.fields import takes_one_arg
+        def fn(arg):
+            return arg
+
+        self.assertFalse(takes_one_arg(fn, 'arg'))
 
     def test_vocabulary_field(self):
         voc = pform.Vocabulary(

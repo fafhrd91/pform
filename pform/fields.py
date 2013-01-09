@@ -1,5 +1,6 @@
 """ Basic fields """
 import pytz
+import inspect
 import datetime
 import decimal
 from pyramid.compat import NativeIO, text_type, PY3
@@ -11,6 +12,43 @@ from pform.fieldset import Fieldset
 from pform.directives import field
 from pform.composite import CompositeField
 from pform.interfaces import _, null, Invalid, IVocabulary
+
+
+def takes_one_arg(fn, name):
+    try:
+        argspec = inspect.getargspec(fn)
+
+        args = argspec[0]
+        if len(args) == 1 and name in args:
+            return True
+
+    except TypeError:
+        pass
+
+    return False
+
+
+def voc_factory_mapper(factory):
+
+    if takes_one_arg(factory, 'request'):
+        def _wrapper_request(form):
+            return factory(getattr(form, 'request', None))
+        return _wrapper_request
+
+    elif takes_one_arg(factory, 'context'):
+        def _wrapper_context(form):
+            return factory(getattr(form, 'context', None))
+        return _wrapper_context
+
+    elif takes_one_arg(factory, 'content'):
+        def _wrapper_content(form):
+            return factory(getattr(form, 'content', None))
+        return _wrapper_content
+
+    else:
+        def _wrapper(form):
+            return factory(form)
+        return _wrapper
 
 
 class VocabularyField(InputField):
@@ -34,12 +72,15 @@ class VocabularyField(InputField):
         if (voc is not None and not IVocabulary.providedBy(voc)):
             self.vocabulary = vocabulary.Vocabulary(*voc)
 
+        if self.voc_factory is not None:
+            self.voc_factory = voc_factory_mapper(self.voc_factory)
+
     def bind(self, request, prefix, value, params, context=None):
         clone = super(VocabularyField, self).bind(
             request, prefix, value, params, context)
 
         if clone.vocabulary is None:
-            clone.vocabulary = self.voc_factory(clone.context)
+            clone.vocabulary = self.voc_factory(context)
 
         return clone
 

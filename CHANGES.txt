@@ -1,6 +1,16 @@
 CHANGES
 =======
 
+
+0.6.1 (01-09-2012)
+------------------
+
+- Allow return additional data from action handler
+
+- Pass different context to vocabulary factory 
+  (depends on factory argument name: request, content, context)
+
+
 0.6 (01-07-2013)
 ----------------
 

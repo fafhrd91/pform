@@ -572,6 +572,44 @@ class TestForm(BaseTestCase):
         res = CustomForm(object(), request)()
         self.assertIs(res, resp)
 
+    def test_update_form_action_return_dict(self):
+        import pform
+        request = self.make_request(POST={'form.buttons.test': 'test'})
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update(self):
+                return None
+
+            @pform.button('test')
+            def test_handler(self):
+                return {1: 'test'}
+
+        form = CustomForm(object(), request)
+
+        res = form.update_form()
+        self.assertEqual(res, {1: 'test'})
+
+    def test_update_form_action_return_dict_combine_with_update(self):
+        import pform
+        request = self.make_request(POST={'form.buttons.test': 'test'})
+
+        class CustomForm(pform.Form):
+            fields = pform.Fieldset(pform.TextField('test'))
+
+            def update(self):
+                return {0: '0'}
+
+            @pform.button('test')
+            def test_handler(self):
+                return {1: 'test'}
+
+        form = CustomForm(object(), request)
+
+        res = form.update_form()
+        self.assertEqual(res, {0: '0', 1: 'test'})
+
     def test_validate(self):
         from pform import Invalid, Form
 

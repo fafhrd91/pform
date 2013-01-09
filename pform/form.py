@@ -50,7 +50,7 @@ class FormWidgets(OrderedDict):
         fieldsets = self.fieldsets = []
 
         self.fieldset = self.form_fields.bind(
-            self.request, content, params, prefix, form.context)
+            self.request, content, params, prefix, form)
 
         # Walk through each field, making a widget out of it.
         for fieldset in self.fieldset.fieldsets():
@@ -282,13 +282,19 @@ class Form(object):
         self.update_widgets()
         self.update_actions()
 
-        result = self.actions.execute()
-        if IResponse.providedBy(result):
-            raise HTTPResponseIsReady(result)
+        ac_result = self.actions.execute()
+        if IResponse.providedBy(ac_result):
+            raise HTTPResponseIsReady(ac_result)
 
         result = self.update()
         if IResponse.providedBy(result):
             raise HTTPResponseIsReady(result)
+
+        if result is None:
+            result = {}
+
+        if ac_result is not None:
+            result.update(ac_result)
 
         return result
 
