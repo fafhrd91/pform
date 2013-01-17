@@ -5,7 +5,7 @@ __all__ = [
     'Field', 'FieldFactory', 'Fieldset',
     'field', 'fieldpreview', 'get_field_factory', 'get_field_preview',
 
-    'Term', 'Vocabulary', 'SimpleTerm', 'SimpleVocabulary',
+    'Term', 'Vocabulary',
 
     'All','Function','Regex','Email','Range', 'Length','OneOf',
 
@@ -120,9 +120,9 @@ from pform.iso8601 import parse_date
 
 
 def includeme(cfg):
-    cfg.include('player')
     cfg.include('pyramid_amdjs')
     cfg.include('pyramid_jinja2')
+    cfg.include('player')
 
     # field
     from pform.directives import add_field

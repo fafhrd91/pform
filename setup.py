@@ -2,11 +2,11 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-version = '0.6.1'
+version = '0.6.2'
 
 install_requires = ['setuptools',
                     'pyramid >= 1.4',
-                    'pyramid_amdjs >= 0.3',
+                    'pyramid_amdjs >= 0.5',
                     'pyramid_jinja2',
                     'player >= 0.6',
                     'pytz',
