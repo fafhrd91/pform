@@ -191,7 +191,7 @@ class Form(object):
     method = 'post'
     enctype = 'multipart/form-data'
     accept = None
-    accept_charset = None
+    accept_charset = 'utf-8'
     params = None
     context = None
     klass = 'form-horizontal'
