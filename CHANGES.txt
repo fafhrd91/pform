@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+0.6.3 (Unreleased)
+------------------
+
+- Use 'utf-8' as default form 'accept-charset'
+
 
 0.6.2 (01-16-2013)
 ------------------
