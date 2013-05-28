@@ -4,7 +4,7 @@
 <form action="{{context.action|safe}}"
       name="{{context.name}}" id="{{context.id}}" class="{{context.klass}}"
       method="{{context.method}}" enctype="{{context.enctype}}"
-      accept="{{context.accept}}" acceptCharset="{{context.accept_charset}}"
+      accept="{{context.accept}}" accept-charset="{{context.accept_charset}}"
       {%if context.autcomplete%}autocomplete="{{context.autocomplete}}"{%endif%}>
 
   {% for fieldset in context.widgets.fieldsets %}
