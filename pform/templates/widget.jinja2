@@ -1,13 +1,13 @@
-<div class="{{'control-group error' if context.error else 'control-group'}}">
-  <label class="control-label"
+<div class="{{'control-group error form-group has-error' if context.error else 'control-group form-group'}}">
+  <label class="control-label col-md-2"
          for="{{context.id}}" title="{{context.description}}">
     {{context.title|safe}}
     {% if context.required %}<small class="muted">*</small>{% endif %}
   </label>
-  <div class="controls">
+  <div class="controls col-md-10">
     {{context.render()|safe}}
     {% if context.error %}
-      <span class="help-inline">{{context.error|safe}}</span>
+      <span class="help-inline help-block">{{context.error|safe}}</span>
     {% endif %}
     {% if context.description %}
     <span class="help-block">

@@ -198,7 +198,7 @@ Field = _FieldMeta('Field', (_Field,), dict(_Field.__dict__))
 
 class InputField(Field):
 
-    klass = None
+    klass = 'form-control'
 
     html_type = 'text'
     html_attrs = ('id', 'name', 'title', 'lang', 'disabled', 'tabindex',
