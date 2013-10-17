@@ -195,7 +195,7 @@ class BaseMultiChoiceField(VocabularyField):
 class TextField(InputField):
     """HTML Text input widget. Field name is ``text``."""
 
-    klass = 'text-widget'
+    klass = 'form-control text-widget'
     value = ''
     missing = ''
 
@@ -226,7 +226,7 @@ class IntegerField(Number, TextField):
 
     typ = int
     value = 0
-    klass = 'int-widget'
+    klass = 'form-control int-widget'
 
 
 @field('float')
@@ -234,7 +234,7 @@ class FloatField(Number, TextField):
     """Float input widget. Field name is ``float``."""
 
     typ = float
-    klass = 'float-widget'
+    klass = 'form-control float-widget'
 
 
 @field('decimal')
@@ -242,14 +242,14 @@ class DecimalField(Number, TextField):
     """Decimal input widget. Field name is ``decimal``."""
 
     typ = decimal.Decimal
-    klass = 'decimal-widget'
+    klass = 'form-control decimal-widget'
 
 
 @field('textarea')
 class TextAreaField(TextField):
     """HTML Text Area input widget. Field name is ``textarea``."""
 
-    klass = 'textarea-widget'
+    klass = 'form-control textarea-widget'
     html_attrs = TextField.html_attrs + ('rows', 'cols')
 
     rows = 5
@@ -263,7 +263,7 @@ class TextAreaField(TextField):
 class FileField(InputField):
     """HTML File input widget. Field name is ``file``."""
 
-    klass = 'input-file'
+    klass = 'form-control input-file'
     html_type = 'file'
 
     max_size = 0
@@ -319,7 +319,7 @@ class LinesField(TextAreaField):
     """Text area based widget, each line is treated as sequence element.
     Field name is ``lines``."""
 
-    klass = 'textlines-widget'
+    klass = 'form-control textlines-widget'
 
     error_msg = _('"${val}" is not a list')
 
@@ -343,7 +343,7 @@ class LinesField(TextAreaField):
 class PasswordField(TextField):
     """HTML Password input widget. Field name is ``password``."""
 
-    klass = 'password-widget'
+    klass = 'form-control password-widget'
     html_type = 'password'
 
 
@@ -351,7 +351,7 @@ class PasswordField(TextField):
 class MultiChoiceField(BaseMultiChoiceField):
     """HTML Checkboxs input based widget. Field name is ``multichoice``."""
 
-    klass = 'multichoice-widget'
+    klass = 'form-control multichoice-widget'
     tmpl_input = 'form:multichoice'
 
 
@@ -434,7 +434,7 @@ class DateTimeField(TextField):
 class RadioField(BaseChoiceField):
     """HTML Radio input widget. Field name is ``radio``."""
 
-    klass = 'radio-widget'
+    klass = 'form-control radio-widget'
     inline = False
     html_type = 'radio'
     html_attrs = BaseChoiceField.html_attrs + ('checked',)
@@ -457,7 +457,7 @@ class ChoiceField(BaseChoiceField):
     """HTML Select input widget. Field name is ``choice``."""
 
     size = 1
-    klass = 'select-widget'
+    klass = 'form-control select-widget'
     multiple = None
     prompt_message = _('select a value ...')
 
