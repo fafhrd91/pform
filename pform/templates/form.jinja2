@@ -1,6 +1,7 @@
-{%if context.label%}<h2>{{context.label|safe}}</h2>{%endif%}
-{%if context.description%}<p>{{context.description|safe}}</p>{%endif%}
-
+<div class="col-md-offset-2 md-lg-10">
+    {%if context.label%}<h2>{{context.label|safe}}</h2>{%endif%}
+    {%if context.description%}<p>{{context.description|safe}}</p>{%endif%}
+</div>
 <form action="{{context.action|safe}}"
       name="{{context.name}}" id="{{context.id}}" class="{{context.klass}}"
       method="{{context.method}}" enctype="{{context.enctype}}"

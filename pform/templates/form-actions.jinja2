@@ -1,7 +1,9 @@
 {% if context.actions %}
-<div class="form-actions">
+<div class="form-actions form-group">
+  <div class="col-md-offset-2 col-md-10">
   {% for action in context.actions.values() %}
     {{action.render()|safe}}
   {% endfor %}
+  </div>
 </div>
 {% endif %}
