@@ -19,9 +19,11 @@
     {%endfor%}
   </fieldset>
   {%endfor%}
-
-  {{request.render_tmpl(context.tmpl_actions, context)|safe}}
-
+  <div class="form-group">
+    <div class="col-md-2"></div>
+    <div class="col-md-10">
+      {{request.render_tmpl(context.tmpl_actions, context)|safe}}
+    </div>
   {%if context.csrf%}
   <input type="hidden" name="{{context.csrf_name}}" value="{{context.csrf_token}}" />
   {%endif%}
