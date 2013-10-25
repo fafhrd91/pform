@@ -273,6 +273,9 @@ class FileField(InputField):
     error_unknown_type = "Unknown file type."
 
     def validate(self, value):
+        if value is null and self.form_value:
+            value = self.form_value
+
         super(FileField, self).validate(value)
 
         if value is null:
