@@ -263,7 +263,7 @@ class TextAreaField(TextField):
 class FileField(InputField):
     """HTML File input widget. Field name is ``file``."""
 
-    klass = 'form-control input-file'
+    klass = 'input-file'
     html_type = 'file'
 
     max_size = 0

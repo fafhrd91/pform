@@ -1,6 +1,7 @@
-{%if context.label%}<h2>{{context.label|safe}}</h2>{%endif%}
-{%if context.description%}<p>{{context.description|safe}}</p>{%endif%}
-
+<div class="{%if 'form-horizontal' in view.klass%}col-md-offset-2 md-lg-10{%endif%}">
+    {%if context.label%}<h2>{{context.label|safe}}</h2>{%endif%}
+    {%if context.description%}<p>{{context.description|safe}}</p>{%endif%}
+</div>
 <form action="{{context.action|safe}}"
       name="{{context.name}}" id="{{context.id}}" class="{{context.klass}}"
       method="{{context.method}}" enctype="{{context.enctype}}"
@@ -18,9 +19,9 @@
     {%endfor%}
   </fieldset>
   {%endfor%}
-
-  {{request.render_tmpl(context.tmpl_actions, context)|safe}}
-
+  <div class="{%if 'form-horizontal' in view.klass%}col-md-offset-2 md-lg-10{%endif%}">
+    {{request.render_tmpl(context.tmpl_actions, context)|safe}}
+  </div>
   {%if context.csrf%}
   <input type="hidden" name="{{context.csrf_name}}" value="{{context.csrf_token}}" />
   {%endif%}
