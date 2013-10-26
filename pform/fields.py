@@ -272,6 +272,8 @@ class FileField(InputField):
     error_max_size = "Maximum file size exceeded."
     error_unknown_type = "Unknown file type."
 
+    tmpl_input = 'form:input-file'
+
     def validate(self, value):
         if value is null and self.form_value:
             value = self.form_value
