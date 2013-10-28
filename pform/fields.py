@@ -455,6 +455,7 @@ class BoolField(BaseChoiceField):
         (False, 'false',  'no'))
 
     tmpl_input = 'form:bool'
+    klass = ''
 
 
 @field('choice')
