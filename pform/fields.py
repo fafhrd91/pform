@@ -439,7 +439,7 @@ class DateTimeField(TextField):
 class RadioField(BaseChoiceField):
     """HTML Radio input widget. Field name is ``radio``."""
 
-    klass = 'form-control radio-widget'
+    klass = 'radio-widget'
     inline = False
     html_type = 'radio'
     html_attrs = BaseChoiceField.html_attrs + ('checked',)
@@ -447,15 +447,14 @@ class RadioField(BaseChoiceField):
 
 
 @field('bool')
-class BoolField(BaseChoiceField):
+class BoolField(RadioField):
     """Boolean input widget. Field name is ``bool``."""
 
     vocabulary = vocabulary.Vocabulary(
         (True, 'true',  'yes'),
         (False, 'false',  'no'))
 
-    tmpl_input = 'form:bool'
-    klass = ''
+    inline = True
 
 
 @field('choice')
