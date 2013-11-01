@@ -1,13 +1,12 @@
 {% for item in context.items %}
-  <label for="{{item['id']}}"
-         class="{{context.html_type}} {%if context.inline%}inline{%endif%}">
+<div class="{{context.html_type}} {%if context.inline%}inline{%endif%}">
+  <label for="{{item['id']}}">
     <input type="{{context.html_type}}"
            {{ context.get_html_attrs(**item)|xmlattr }}>
     {{item['label']}}
   </label>
   {% if item.description %}
-  <p class="help-block">
-    <p class="muted"><small>{{item['description']|safe}}</small></p>
-  </p>
+  <span class="help-block"><small>{{item['description']|safe}}</small></span>
   {% endif %}
+</div>
 {% endfor %}

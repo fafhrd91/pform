@@ -356,7 +356,8 @@ class PasswordField(TextField):
 class MultiChoiceField(BaseMultiChoiceField):
     """HTML Checkboxs input based widget. Field name is ``multichoice``."""
 
-    klass = 'form-control multichoice-widget'
+    klass = 'multichoice-widget'
+    html_type = 'checkbox'
     tmpl_input = 'form:multichoice'
 
 
