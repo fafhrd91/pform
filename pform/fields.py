@@ -381,7 +381,7 @@ class DateField(TextField):
 
     def to_field(self, value):
         if not value:
-            return null
+            return None
 
         try:
             result = iso8601.parse_date(value)
@@ -420,7 +420,7 @@ class DateTimeField(TextField):
 
     def to_field(self, value):
         if not value:
-            return null
+            return None
 
         try:
             result = iso8601.parse_date(
