@@ -255,6 +255,7 @@ class TextAreaField(TextField):
     rows = 5
     cols = 40
     value = ''
+    default = ''
 
     tmpl_input = 'form:textarea'
 
@@ -363,6 +364,7 @@ class MultiChoiceField(BaseMultiChoiceField):
 
 class DateField(TextField):
     """Simple date input field."""
+    missing = None
 
     error_msg = _('"${val}" is not a date object')
     error_invalid_date = _('Invalid date')
@@ -381,7 +383,7 @@ class DateField(TextField):
 
     def to_field(self, value):
         if not value:
-            return None
+            return null
 
         try:
             result = iso8601.parse_date(value)
@@ -399,6 +401,7 @@ class DateField(TextField):
 class DateTimeField(TextField):
 
     default_tzinfo = iso8601.Utc()
+    missing = None
 
     error_msg = _('"${val}" is not a datetime object')
     error_invalid_date = _('Invalid date')
@@ -420,7 +423,7 @@ class DateTimeField(TextField):
 
     def to_field(self, value):
         if not value:
-            return None
+            return null
 
         try:
             result = iso8601.parse_date(
