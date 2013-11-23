@@ -340,7 +340,7 @@ class LinesField(TextAreaField):
             return null
 
         try:
-            return [s.strip() for s in value.split()]
+            return [s.strip() for s in value.split('\n')]
         except Exception:
             raise Invalid(self.error_msg, self, {'val': value})
 
