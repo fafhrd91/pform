@@ -326,6 +326,7 @@ class LinesField(TextAreaField):
     Field name is ``lines``."""
 
     klass = 'form-control textlines-widget'
+    missing = []
 
     error_msg = _('"${val}" is not a list')
 
@@ -340,7 +341,7 @@ class LinesField(TextAreaField):
             return null
 
         try:
-            return [s.strip() for s in value.split('\n')]
+            return list(filter(None, [s.strip() for s in value.split('\n')]))
         except Exception:
             raise Invalid(self.error_msg, self, {'val': value})
 
