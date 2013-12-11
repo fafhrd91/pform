@@ -1,7 +1,0 @@
-{% if context.actions %}
-<div class="form-actions">
-  {% for action in context.actions.values() %}
-    {{action.render()|safe}}
-  {% endfor %}
-</div>
-{% endif %}
