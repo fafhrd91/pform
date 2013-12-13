@@ -6,8 +6,7 @@
       name="${context.name}" id="${context.id}" class="${context.klass}"
       method="${context.method}" enctype="${context.enctype}"
       accept="${context.accept}" accept-charset="${context.accept_charset}">
-
-  <fieldset tal:repeat="fieldset context.widgets.fieldsets">
+  <fieldset tal:condition="context.widgets" tal:repeat="fieldset context.widgets.fieldsets">
     <legend tal:condition="fieldset['title']">${structure:fieldset['title']}</legend>
 
     <tal:block tal:repeat="widget fieldset['widgets']">

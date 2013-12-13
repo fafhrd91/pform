@@ -1,4 +1,4 @@
-<div tal:define="err context.error.msg" class="${'control-group error' if err else 'control-group'}">
+<div tal:define="err context.error" class="${'control-group error' if err and err.msg else 'control-group'}">
   <label tal:condition="context.title" class="control-label">${context.title} <small tal:condition="context.required" class="muted">*</small></label>
 
   <div tal:condition="context.inline" class="controls">
@@ -8,8 +8,8 @@
     ${structure:context.render()}
   </tal:block>
 
-  <div tal:condition="err" class="controls">
-    <span class="help-inline">${context.error}</span>
+  <div tal:condition="err and err.msg" class="controls">
+    <span class="help-inline">${err.msg}</span>
   </div>
 
   <div tal:condition="context.description" class="controls">

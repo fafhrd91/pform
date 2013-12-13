@@ -37,7 +37,7 @@
     </label>
     <div class="controls">
       ${structure:field.render()}
-        <span tal:condition="field.error" class="help-inline">{{field.error|safe}}</span>
+        <span tal:condition="field.error" class="help-inline">${field.error}</span>
       <p class="help-block"></p>
     </div>
   </div>
