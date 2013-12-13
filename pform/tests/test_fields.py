@@ -32,12 +32,12 @@ class TestInputField(BaseTestCase):
         field = field.bind(request, '', 'content', {})
         field.update()
 
-        self.assertEqual(field.klass, None)
+        self.assertEqual(field.klass, 'form-control')
 
         field.readonly = True
         field.update()
 
-        self.assertEqual(field.klass, 'disabled')
+        self.assertEqual(field.klass, 'form-control disabled')
 
 
 class TestTextField(BaseTestCase):
@@ -55,19 +55,19 @@ class TestTextField(BaseTestCase):
         self.assertEqual(field.to_form('value'), 'value')
         self.assertEqual(field.to_field('value'), 'value')
 
-        res = field.render()
+        res = field.render().strip()
         self.assertEqual(
-            '<input type="text" class="text-widget" value="content" id="test" name="test" title="Test">',
-            strip(res))
+            '<input type="text" class="form-control text-widget" value="content" id="test" name="test" title="Test">',
+            res)
 
         field = self._makeOne('test')
         field = field.bind(request, '', 'content', {'test': 'form'})
         field.update()
 
-        res = field.render()
+        res = field.render().strip()
         self.assertIn(
-            '<input type="text" class="text-widget" value="form" id="test" name="test" title="Test">',
-            strip(res))
+            '<input type="text" class="form-control text-widget" value="form" id="test" name="test" title="Test">',
+            res)
 
 
 class TestIntegerField(BaseTestCase):
@@ -89,10 +89,10 @@ class TestIntegerField(BaseTestCase):
         self.assertEqual(field.to_field('10'), 10)
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = field.render()
+        res = field.render().strip()
         self.assertEqual(
-            '<input type="text" class="int-widget" value="10" id="test" name="test" title="Test">',
-            strip(res))
+            '<input type="text" class="form-control int-widget" value="10" id="test" name="test" title="Test">',
+            res)
 
 
 class TestFloatField(BaseTestCase):
@@ -114,10 +114,10 @@ class TestFloatField(BaseTestCase):
         self.assertEqual(field.to_field('10.34'), 10.34)
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = field.render()
+        res = field.render().strip()
         self.assertEqual(
-            '<input type="text" class="float-widget" value="10.34" id="test" name="test" title="Test">',
-            strip(res))
+            '<input type="text" class="form-control float-widget" value="10.34" id="test" name="test" title="Test">',
+            res)
 
 
 class TestDeciamlField(BaseTestCase):
@@ -139,10 +139,10 @@ class TestDeciamlField(BaseTestCase):
         self.assertEqual(field.to_field('10.34'), decimal.Decimal('10.34'))
         self.assertRaises(pform.Invalid, field.to_field, 'value')
 
-        res = field.render()
+        res = field.render().strip()
         self.assertEqual(
-            '<input type="text" class="decimal-widget" value="10.34" id="test" name="test" title="Test">',
-            strip(res))
+            '<input type="text" class="form-control decimal-widget" value="10.34" id="test" name="test" title="Test">',
+            res)
 
 
 class TestLinesField(BaseTestCase):
@@ -150,7 +150,7 @@ class TestLinesField(BaseTestCase):
     def _makeOne(self, name, **kw):
         return pform.LinesField(name, title=name.capitalize(), **kw)
 
-    def test_fields_decimal(self):
+    def test_fields_linesfield(self):
         request = self.make_request()
 
         field = self._makeOne('test')
@@ -164,10 +164,10 @@ class TestLinesField(BaseTestCase):
         self.assertEqual(field.to_field('1\n2\n3'), ['1','2','3'])
         self.assertRaises(pform.Invalid, field.to_field, 5)
 
-        res = field.render()
+        res = field.render().strip()
         self.assertIn(
-            '<textarea  class="textlines-widget" value="1 2 3" id="test" name="test" title="Test" rows="5" cols="40">1 2 3</textarea>',
-            strip(res))
+            '<textarea class="form-control textlines-widget" value="1\n2\n3" id="test" name="test" title="Test" rows="5" cols="40">1\n2\n3</textarea>',
+            res)
 
 
 class TestVocabularyField(BaseTestCase):

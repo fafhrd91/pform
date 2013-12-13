@@ -121,7 +121,7 @@ from pform.iso8601 import parse_date
 
 def includeme(cfg):
     cfg.include('pyramid_amdjs')
-    cfg.include('pyramid_jinja2')
+    cfg.include('pyramid_chameleon')
     cfg.include('player')
 
     # field

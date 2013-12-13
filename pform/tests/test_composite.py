@@ -273,7 +273,7 @@ class TestCompositeField(BaseTestCase):
         self.assertIn(
             '<label class="control-label">Test', res)
         self.assertIn(
-            '<input type="text" class="text-widget" value="Nikolay"', res)
+            '<input type="text" class="form-control text-widget" value="Nikolay"', res)
 
     def test_render_widget_with_error(self):
         """ Composite field render widget with error """
@@ -298,4 +298,4 @@ class TestCompositeField(BaseTestCase):
 
         res = widget.render()
         self.assertIn(
-            '<input type="text" class="text-widget" value="Nikolay" id="test-test-name" name="test.name" title="Name">', res)
+            '<input type="text" class="form-control text-widget" value="Nikolay" id="test-test-name" name="test.name" title="Name">', res)

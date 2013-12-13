@@ -1,3 +1,5 @@
+from pyramid.testing import DummyRequest
+
 import pform
 from base import BaseTestCase
 
@@ -173,7 +175,7 @@ class TestField(BaseTestCase):
             def to_form(self, value):
                 raise pform.Invalid('Invalid value', self)
 
-        request = object()
+        request = DummyRequest()
 
         field = MyField('test')
         widget = field.bind(request, 'field.', '12345', {})
